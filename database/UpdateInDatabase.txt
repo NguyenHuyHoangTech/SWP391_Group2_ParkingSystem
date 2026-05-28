@@ -1,0 +1,14 @@
+Chỉnh sửa database theo cách sau:
+
+Khai báo: Tên người chỉnh sửa - Ngày chỉnh sửa - mô tả chỉnh sửa (ngắn gọn)
+
+Câu lệnh update database.
+
+
+Ví Dụ:
+
+Nguyễn Huy Hoàng - 27/05/2026 - Tạo mới Database. 
+
+Script:
+CREATE DATABASE ParkingManagementSystem;
+GO
