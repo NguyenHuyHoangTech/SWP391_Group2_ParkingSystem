@@ -54,8 +54,14 @@ CREATE TABLE Account (
     phone VARCHAR(20),
     role VARCHAR(50) CHECK (role IN ('ADMIN', 'MANAGER', 'STAFF', 'USER')) NOT NULL,
     building_id INT NULL FOREIGN KEY REFERENCES ParkingBuilding(id),
-    status VARCHAR(50) CHECK (status IN ('ACTIVE', 'INACTIVE', 'BANNED')) DEFAULT 'ACTIVE'
+    status VARCHAR(50) CHECK (status IN ('ACTIVE', 'INACTIVE')) DEFAULT 'ACTIVE'
 );
+ALTER TABLE Floor
+ADD manager_id INT NULL;
+
+ALTER TABLE Floor
+ADD CONSTRAINT FK_Floor_Manager
+FOREIGN KEY (manager_id) REFERENCES Account(id);
 
 -- 7. ParkingCard
 CREATE TABLE ParkingCard (

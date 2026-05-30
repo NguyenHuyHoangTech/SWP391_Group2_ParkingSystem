@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import './StaffList.css';
 
 const API_URL = 'http://localhost:8080/api/staff';
@@ -22,11 +22,7 @@ function StaffList() {
   const [statusError, setStatusError] = useState('');
   const [processingStatusId, setProcessingStatusId] = useState(null);
 
-  useEffect(() => {
-    fetchStaff();
-  }, []);
-
-  const fetchStaff = async () => {
+  const fetchStaff = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -41,7 +37,12 @@ function StaffList() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchStaff();
+  }, [fetchStaff]);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -169,7 +170,6 @@ function StaffList() {
     switch (status) {
       case 'ACTIVE': return 'status-active';
       case 'INACTIVE': return 'status-inactive';
-      case 'BANNED': return 'status-banned';
       default: return '';
     }
   };
@@ -260,17 +260,7 @@ function StaffList() {
                   </td>
                   <td>
                     <div className="status-actions">
-                      {staff.status !== 'ACTIVE' && (
-                        <button
-                          type="button"
-                          className="action-btn activate-btn"
-                          onClick={() => handleStatusUpdate(staff.id, 'ACTIVE')}
-                          disabled={processingStatusId !== null}
-                        >
-                          Activate
-                        </button>
-                      )}
-                      {staff.status !== 'INACTIVE' && (
+                      {staff.status === 'ACTIVE' ? (
                         <button
                           type="button"
                           className="action-btn deactivate-btn"
@@ -279,15 +269,14 @@ function StaffList() {
                         >
                           Deactivate
                         </button>
-                      )}
-                      {staff.status !== 'BANNED' && (
+                      ) : (
                         <button
                           type="button"
-                          className="action-btn ban-btn"
-                          onClick={() => handleStatusUpdate(staff.id, 'BANNED')}
+                          className="action-btn activate-btn"
+                          onClick={() => handleStatusUpdate(staff.id, 'ACTIVE')}
                           disabled={processingStatusId !== null}
                         >
-                          Ban
+                          Activate
                         </button>
                       )}
                     </div>
