@@ -1,0 +1,479 @@
+/* ===== Staff List Page Styles ===== */
+
+.staff-container {
+  max-width: 1120px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* Header */
+.staff-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.staff-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.staff-count {
+  display: inline-block;
+  margin-top: 0.45rem;
+  font-size: 0.875rem;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+.add-staff-btn {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 0.65rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.add-staff-btn:hover {
+  background: #1d4ed8;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.18);
+}
+
+/* Table Wrapper */
+.table-wrapper {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.staff-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.staff-table thead {
+  background: #f8fafc;
+}
+
+.staff-table th {
+  text-align: left;
+  padding: 0.8rem 1rem;
+  font-weight: 600;
+  color: #475569;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.staff-table td {
+  padding: 0.75rem 1rem;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.staff-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.staff-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.cell-id {
+  color: #94a3b8;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.cell-username {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.cell-email {
+  color: #64748b;
+}
+
+.cell-phone {
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Role Badges */
+.role-badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.role-manager {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.role-staff {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.status-active {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-inactive {
+  background: #fef3c7;
+  color: #a16207;
+}
+
+.status-banned {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.action-btn {
+  border: 1px solid transparent;
+  padding: 0.4rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+
+.activate-btn {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.activate-btn:hover:not(:disabled) {
+  background: #bbf7d0;
+}
+
+.deactivate-btn {
+  background: #fef3c7;
+  color: #a16207;
+}
+
+.deactivate-btn:hover:not(:disabled) {
+  background: #fde68a;
+}
+
+.ban-btn {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.ban-btn:hover:not(:disabled) {
+  background: #fecaca;
+}
+
+.action-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.status-message {
+  margin-bottom: 1rem;
+  border-radius: 6px;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.success-message {
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.error-message {
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+/* Loading State */
+.staff-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 0;
+  color: #64748b;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Error State */
+.staff-error {
+  text-align: center;
+  padding: 3rem 0;
+}
+
+.error-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.staff-error h3 {
+  color: #1e293b;
+  margin: 0 0 0.5rem;
+}
+
+.staff-error p {
+  color: #64748b;
+  margin: 0 0 1.25rem;
+  font-size: 0.9rem;
+}
+
+.retry-btn {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.retry-btn:hover {
+  background: #2563eb;
+}
+
+/* Empty State */
+.staff-empty {
+  text-align: center;
+  padding: 3rem 0;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+/* Add Staff Modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.staff-modal {
+  width: min(100%, 520px);
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 1.15rem;
+}
+
+.modal-close-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  color: #475569;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.modal-close-btn:hover:not(:disabled) {
+  background: #f8fafc;
+}
+
+.staff-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.staff-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  color: #475569;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.staff-form input,
+.staff-form select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 0.65rem 0.75rem;
+  color: #1e293b;
+  font: inherit;
+  background: #fff;
+}
+
+.staff-form input:focus,
+.staff-form select:focus {
+  outline: 2px solid rgba(37, 99, 235, 0.2);
+  border-color: #2563eb;
+}
+
+.form-error {
+  grid-column: 1 / -1;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 0.75rem 0.85rem;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.25rem;
+}
+
+.cancel-btn,
+.submit-btn {
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background: #e2e8f0;
+}
+
+.submit-btn {
+  background: #2563eb;
+  color: #fff;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.cancel-btn:disabled,
+.submit-btn:disabled,
+.modal-close-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .staff-container {
+    padding: 0 1rem;
+  }
+
+  .staff-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .staff-table th,
+  .staff-table td {
+    padding: 0.6rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .staff-header h1 {
+    font-size: 1.35rem;
+  }
+
+  .add-staff-btn {
+    width: 100%;
+  }
+
+  .modal-backdrop {
+    align-items: flex-start;
+    padding: 1rem;
+  }
+
+  .staff-form {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+}
