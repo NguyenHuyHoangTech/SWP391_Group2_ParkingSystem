@@ -12,3 +12,12 @@ Nguyễn Huy Hoàng - 27/05/2026 - Tạo mới Database.
 Script:
 CREATE DATABASE ParkingManagementSystem;
 GO
+
+Phạm Anh Tuấn - 29/05/2026 - Thêm cột manager_id trong table Floor
+Script:
+ALTER TABLE Floor
+ADD manager_id INT NULL;
+
+ALTER TABLE Floor
+ADD CONSTRAINT FK_Floor_Manager
+FOREIGN KEY (manager_id) REFERENCES Account(id);
