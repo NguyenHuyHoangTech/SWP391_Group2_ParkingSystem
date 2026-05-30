@@ -1,4 +1,4 @@
 # parking-system
 
-Monorepo for Parking Building Management System (Spring Boot \& React)
+Monorepo for Parking Building Management System (Spring Boot \& React) 
 
