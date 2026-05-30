@@ -17,7 +17,7 @@ public class StaffService {
 
     private static final String ACTIVE_STATUS = "ACTIVE";
     private static final Set<String> ALLOWED_ROLES = Set.of("STAFF", "MANAGER");
-    private static final Set<String> ALLOWED_STATUSES = Set.of("ACTIVE", "INACTIVE", "BANNED");
+    private static final Set<String> ALLOWED_STATUSES = Set.of("ACTIVE", "INACTIVE");
 
     private final AccountRepository accountRepository;
 
@@ -88,7 +88,7 @@ public class StaffService {
         }
 
         if (!ALLOWED_STATUSES.contains(request.getStatus().trim())) {
-            throw new IllegalArgumentException("Status must be ACTIVE, INACTIVE, or BANNED.");
+            throw new IllegalArgumentException("Status must be ACTIVE or INACTIVE.");
         }
     }
 
