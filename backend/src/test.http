@@ -1,0 +1,20 @@
+### Task 1: Thêm mới chính sách giá (POST)
+POST http://localhost:8080/api/pricing-policies
+Content-Type: application/json
+
+{
+  "name": "Vé lượt ban ngày - Xe máy",
+  "vehicleTypeId": 1,
+  "status": "ACTIVE",
+  "blocks": [
+    {
+      "blockOrder": 1,
+      "durationHours": 4,
+      "price": 5000
+    }
+  ]
+}
+
+### Task 2: Xem danh sách chính sách giá (GET)
+GET http://localhost:8080/api/pricing-policies
+Content-Type: application/json
