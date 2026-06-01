@@ -10,6 +10,7 @@ import java.util.List;
 
 @RestController // Gắn biển hiệu đây là Lễ tân, chuyên giao tiếp bằng cục JSON
 @RequestMapping("/api/pricing-policies") // Đặt tên địa chỉ cho cổng này
+@CrossOrigin(origins = "http://localhost:5173")
 public class PricingPolicyController {
 
     // Gọi Bếp trưởng (Service) ra làm việc

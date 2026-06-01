@@ -69,5 +69,4 @@ public class PricingPolicy {
     public void setBlocks(List<PricingBlock> blocks) {
         this.blocks = blocks;
     }
-public class PricingPolicy {
 }
