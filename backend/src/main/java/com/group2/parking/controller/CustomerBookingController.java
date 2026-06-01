@@ -16,29 +16,30 @@ public class CustomerBookingController {
 
     private final BookingService bookingService;
 
-    // UC-401: Customer tạo booking
+    // UC-401: USER TẠO BOOKING
     @PostMapping
     public BookingResponse createBooking(@RequestBody CreateBookingRequest request) {
         return bookingService.createBooking(request);
     }
 
-    //Xem booking của customer
+    //UC-402: HỦY BOOKING QUÁ HẠN
+    @PostMapping("/expire-overdue")
+    public String expireOverdueBookings() {
+        bookingService.expireOverdueBookings();
+        return "Expired overdue bookings";
+    }
+
+    //XEM BOOKING CỦA USER
     @GetMapping
     public List<BookingResponse> getBookings(@RequestParam("accountId") Integer accountId) {
         return bookingService.getBookingsByAccount(accountId);
     }
 
 
-    // UC-407: Customer tự hủy booking
+    // UC-407: USER TỰ HỦY BOOKING
     @PatchMapping("/{id}/cancel")
     public BookingResponse cancelBooking(@PathVariable("id") Integer id) {
         return bookingService.cancelBooking(id);
     }
 
-    //UC-402
-    @PostMapping("/expire-overdue")
-    public String expireOverdueBookings() {
-        bookingService.expireOverdueBookings();
-        return "Expired overdue bookings";
-    }
 }
