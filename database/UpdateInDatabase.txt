@@ -12,3 +12,40 @@ Nguyễn Huy Hoàng - 27/05/2026 - Tạo mới Database.
 Script:
 CREATE DATABASE ParkingManagementSystem;
 GO
+
+-----------------------------------------------------------
+Nguyễn Hữu Thành - 30/05/2026 - Thêm dữ liệu mẫu cho VehicleType, ParkingBuilding, Floor (phục vụ PBMS-9,10,11)
+
+Script:
+USE ParkingManagementSystem;
+GO
+
+-- Loại xe
+INSERT INTO VehicleType (name, description) VALUES
+  (N'Xe máy', N'Dành cho xe máy và mô tô'),
+  (N'Xe đạp', N'Dành cho xe đạp'),
+  (N'Ô tô',   N'Dành cho ô tô con');
+GO
+
+-- Tòa nhà mẫu
+INSERT INTO ParkingBuilding (name, address, status) VALUES
+  (N'Tòa nhà A', N'123 Đường ABC, Quận 1, TP.HCM', 'OPEN');
+GO
+
+-- Tầng mẫu (thuộc Tòa nhà A - id=1)
+INSERT INTO Floor (building_id, name, floor_level, capacity) VALUES
+  (1, N'Tầng hầm 1', -1, 80),
+  (1, N'Tầng 1',     1,  100),
+  (1, N'Tầng 2',     2,  100);
+GO
+
+-----------------------------------------------------------
+AI - 01/06/2026 - Thêm cột vehicle_type_id vào bảng Floor (mỗi tầng cố định 1 loại xe)
+
+Script:
+ALTER TABLE Floor ADD vehicle_type_id INT NULL REFERENCES VehicleType(id);
+GO
+
+-- Cập nhật loại xe mặc định cho các tầng đã có (Xe máy = id 1)
+UPDATE Floor SET vehicle_type_id = (SELECT TOP 1 id FROM VehicleType WHERE name = N'Xe máy');
+GO
