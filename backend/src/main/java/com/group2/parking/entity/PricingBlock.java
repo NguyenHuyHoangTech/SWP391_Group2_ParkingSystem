@@ -63,4 +63,5 @@ public class PricingBlock {
     public void setPrice(double price) {
         this.price = price;
     }
+public class PricingBlock {
 }
