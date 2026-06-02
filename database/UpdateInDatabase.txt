@@ -21,3 +21,64 @@ ADD manager_id INT NULL;
 ALTER TABLE Floor
 ADD CONSTRAINT FK_Floor_Manager
 FOREIGN KEY (manager_id) REFERENCES Account(id);
+
+Thái Tân Phú - 2/6/2026 - THÊM TABLE BOOKING - field building_id vào TABLE PARKINGSESSION - ĐỔI TIỀN THÀNH DECIMAL
+**ADD TABLE BOOKING
+CREATE TABLE Booking (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    account_id INT NOT NULL FOREIGN KEY REFERENCES Account(id),
+    building_id INT NOT NULL FOREIGN KEY REFERENCES ParkingBuilding(id),
+    vehicle_type_id INT NOT NULL FOREIGN KEY REFERENCES VehicleType(id),
+    license_plate VARCHAR(50) NOT NULL,
+    start_time DATETIME NOT NULL,
+    end_time DATETIME NOT NULL,
+    status VARCHAR(50)
+        CHECK (status IN ('CONFIRMED', 'CANCELLED', 'EXPIRED', 'USED'))
+        DEFAULT 'CONFIRMED',
+    created_at DATETIME DEFAULT GETDATE(),
+    cancelled_at DATETIME NULL,
+    expired_at DATETIME NUL
+);
+
+**ADD FIELD VÀO PARKINGSESSION
+-- 12. ParkingSession
+CREATE TABLE ParkingSession (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    account_id INT NULL FOREIGN KEY REFERENCES Account(id),
+    building_id INT NOT NULL FOREIGN KEY REFERENCES ParkingBuilding(id),
+    slot_id INT NULL FOREIGN KEY REFERENCES Slot(id),
+    vehicle_type_id INT FOREIGN KEY REFERENCES VehicleType(id),
+    card_id INT NULL FOREIGN KEY REFERENCES ParkingCard(id),
+    license_plate VARCHAR(50) NOT NULL,
+    entry_gate NVARCHAR(100) NOT NULL,
+    exit_gate NVARCHAR(100) NULL,
+    check_in_time DATETIME NULL,
+    check_out_time DATETIME NULL,
+    status VARCHAR(50)
+        CHECK (status IN ('RESERVED', 'ACTIVE', 'COMPLETED', 'CANCELLED'))
+        DEFAULT 'ACTIVE'
+);
+
+**ĐỔI TIỀN
+-- 10. PricingBlock
+CREATE TABLE PricingBlock (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    policy_id INT FOREIGN KEY REFERENCES PricingPolicy(id),
+    block_order INT NOT NULL,
+    duration_hours INT NOT NULL,
+    price DECIMAL(12,2) NOT NULL
+);
+
+-- 13. Payment
+CREATE TABLE Payment (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    session_id INT NULL FOREIGN KEY REFERENCES ParkingSession(id),
+    monthly_ticket_id INT NULL FOREIGN KEY REFERENCES MonthlyTicket(id),
+    amount DECIMAL(12,2) NOT NULL,
+    payment_method VARCHAR(50)
+        CHECK (payment_method IN ('CASH', 'VNPAY', 'MOMO')),
+    status VARCHAR(50)
+        CHECK (status IN ('PENDING', 'SUCCESS', 'FAILED'))
+        DEFAULT 'PENDING',
+    created_at DATETIME DEFAULT GETDATE()
+);
