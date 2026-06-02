@@ -1,39 +1,42 @@
 package com.group2.parking.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "Account")
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class Account {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "username", unique = true, nullable = false, length = 100)
+    @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(name = "password", nullable = false, length = 255)
+    @Column(nullable = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    @Column(name = "email", length = 255)
+    @Column
     private String email;
 
-    @Column(name = "phone", length = 20)
+    @Column
     private String phone;
 
-    @Column(name = "role", nullable = false, length = 50)
-    private String role;
+    @Column(nullable = false)
+    private String role; 
 
     @Column(name = "building_id")
     private Integer buildingId;
 
-    @Column(name = "status", length = 50)
-    private String status;
+    @Column(nullable = false)
+    private String status; 
 }

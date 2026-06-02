@@ -8,8 +8,5 @@ import java.util.List;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Integer> {
-
     List<Account> findByRoleIn(List<String> roles);
-
-    boolean existsByUsername(String username);
 }
