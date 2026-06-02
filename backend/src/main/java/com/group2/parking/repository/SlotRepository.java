@@ -7,6 +7,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface SlotRepository extends JpaRepository<Slot, Integer> {
 
+    boolean existsByZoneId(Integer zoneId);
+
     // Đếm tổng slot dùng được theo bãi xe + loại xe
     @Query(value = """
         SELECT COUNT(s.id)
