@@ -104,6 +104,7 @@ public class BookingService {
 
         for (Booking booking : bookings) {
             booking.setStatus("EXPIRED");
+            booking.setExpiredAt(LocalDateTime.now());
         }
     }
 

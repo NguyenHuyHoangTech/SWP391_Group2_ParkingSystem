@@ -43,4 +43,7 @@ public class Booking {
 
     @Column(name = "cancelled_at")
     private LocalDateTime cancelledAt;
+
+    @Column(name = "expired_at")
+    private LocalDateTime expiredAt;
 }
