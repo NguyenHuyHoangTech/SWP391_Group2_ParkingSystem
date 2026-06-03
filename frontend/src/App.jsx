@@ -4,11 +4,13 @@ import PricingPolicy from './pages/PricingPolicy';
 import CustomerBooking from './pages/CustomerBooking';
 import FloorListPage from './pages/Floors/FloorListPage';
 import ZoneListPage from './pages/Zones/ZoneListPage';
+import PublicBuildings from './pages/PublicBuildings';
 import './App.css';
 
 localStorage.setItem('userRole', 'ADMIN');
 
 const NAV_ITEMS = [
+  { key: 'public',   label: '🌍 Guest View' },
   { key: 'floors',   label: '🏢 Quản lý Tầng' },
   { key: 'zones',    label: '🅿️ Quản lý Khu vực' },
   { key: 'staff',    label: '👤 Nhân viên' },
@@ -17,16 +19,17 @@ const NAV_ITEMS = [
 ];
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState('floors');
+  const [currentScreen, setCurrentScreen] = useState('public');
 
   const renderScreen = () => {
     switch (currentScreen) {
+      case 'public':   return <PublicBuildings />;
       case 'floors':   return <FloorListPage />;
       case 'zones':    return <ZoneListPage />;
       case 'staff':    return <StaffList />;
       case 'pricing':  return <PricingPolicy />;
       case 'booking':  return <CustomerBooking />;
-      default:         return <FloorListPage />;
+      default:         return <PublicBuildings />;
     }
   };
 

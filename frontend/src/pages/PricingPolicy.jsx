@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import './StaffList.css'; // Reusing staff list css for layout consistency
+import vehicleTypeApi from '../api/vehicleTypeApi';
 
 const API_URL = 'http://localhost:8080/api/pricing-policies';
 
@@ -8,6 +9,7 @@ function PricingPolicy() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [vehicleTypes, setVehicleTypes] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     status: 'ACTIVE',
@@ -34,6 +36,7 @@ function PricingPolicy() {
 
   useEffect(() => {
     fetchPolicies();
+    vehicleTypeApi.getAll().then(r => setVehicleTypes(r.data.data || [])).catch(console.error);
   }, [fetchPolicies]);
 
   const handleInputChange = (e) => {
@@ -47,12 +50,16 @@ function PricingPolicy() {
   const handleAddPolicy = async (event) => {
     event.preventDefault();
     try {
+      const payload = {
+        ...formData,
+        vehicleTypeId: Number(formData.vehicleTypeId)
+      };
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -165,15 +172,19 @@ function PricingPolicy() {
                 </select>
               </div>
               <div className="form-group">
-                <label htmlFor="vehicleTypeId">Vehicle Type ID</label>
-                <input
-                  type="number"
+                <label htmlFor="vehicleTypeId">Vehicle Type</label>
+                <select
                   id="vehicleTypeId"
                   name="vehicleTypeId"
                   value={formData.vehicleTypeId}
                   onChange={handleInputChange}
                   required
-                />
+                >
+                  <option value="">-- Select Vehicle Type --</option>
+                  {vehicleTypes.map(v => (
+                    <option key={v.id} value={v.id}>{v.name}</option>
+                  ))}
+                </select>
               </div>
               <div className="form-actions">
                 <button type="button" className="cancel-btn" onClick={() => setShowModal(false)}>Cancel</button>
