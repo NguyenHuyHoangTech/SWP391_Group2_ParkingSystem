@@ -1,6 +1,6 @@
 package com.group2.parking.controller;
 
-import com.group2.parking.dto.BuildingResponse;
+import com.group2.parking.dto.response.BuildingResponse;
 import com.group2.parking.service.ParkingPublicService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
