@@ -1,13 +1,9 @@
 package com.group2.parking.entity;
 
-
 import jakarta.persistence.*;
-
-
 
 @Entity
 @Table(name = "VehicleType")
-
 public class VehicleType {
 
 

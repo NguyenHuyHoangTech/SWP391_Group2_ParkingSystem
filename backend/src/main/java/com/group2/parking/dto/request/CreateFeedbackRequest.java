@@ -1,4 +1,4 @@
-package com.group2.parking.dto;
+package com.group2.parking.dto.request;
 
 public record CreateFeedbackRequest(
         Integer accountId,

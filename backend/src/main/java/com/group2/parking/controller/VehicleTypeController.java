@@ -1,6 +1,6 @@
 package com.group2.parking.controller;
 
-import com.group2.parking.dto.ApiResponse;
+import com.group2.parking.dto.response.ApiResponse;
 import com.group2.parking.entity.VehicleType;
 import com.group2.parking.repository.VehicleTypeJpaRepository;
 import lombok.RequiredArgsConstructor;

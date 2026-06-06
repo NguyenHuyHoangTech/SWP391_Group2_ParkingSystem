@@ -1,6 +1,6 @@
 package com.group2.parking.service;
 
-import com.group2.parking.dto.BuildingResponse;
+import com.group2.parking.dto.response.BuildingResponse;
 import com.group2.parking.entity.ParkingBuilding;
 import com.group2.parking.repository.ParkingBuildingRepository;
 import lombok.RequiredArgsConstructor;

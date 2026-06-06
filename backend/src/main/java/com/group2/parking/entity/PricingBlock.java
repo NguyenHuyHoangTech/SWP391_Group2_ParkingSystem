@@ -3,64 +3,31 @@ package com.group2.parking.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "PricingBlock")
-
+@Data
+@NoArgsConstructor
 public class PricingBlock {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer Id;
+    private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "pricing_policy_id")
-    @JsonIgnoreProperties("pricingBlocks")
-    private PricingPolicy pricingPolicy;
-
-    @Column(name = "block_order")
+    @Column(name = "block_order", nullable = false)
     private Integer blockOrder;
-    @Column(name = "duration_hours")
-    private Integer durationHours;// kéo dài bao nhiêu giờ
-    @Column(nullable = false)
-    private double price;
 
-    public Integer getId() {
-        return Id;
-    }
+    @Column(name = "duration_hours", nullable = false)
+    private Integer durationHours;
 
-    public void setId(Integer id) {
-        Id = id;
-    }
+    @Column(name = "price", nullable = false, precision = 12, scale = 2)
+    private BigDecimal price;
 
-    public PricingPolicy getPricingPolicy() {
-        return pricingPolicy;
-    }
-
-    public void setPricingPolicy(PricingPolicy pricingPolicy) {
-        this.pricingPolicy = pricingPolicy;
-    }
-
-    public Integer getBlockOrder() {
-        return blockOrder;
-    }
-
-    public void setBlockOrder(Integer blockOrder) {
-        this.blockOrder = blockOrder;
-    }
-
-    public Integer getDurationHours() {
-        return durationHours;
-    }
-
-    public void setDurationHours(Integer durationHours) {
-        this.durationHours = durationHours;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "policy_id", nullable = false)
+    private PricingPolicy pricingPolicy;
 }

@@ -1,12 +1,13 @@
 package com.group2.parking.dto;
 
 
+import java.math.BigDecimal;
 
 
 public class PricingBlockDTO {
     private Integer blockOrder;
     private Integer durationHours;
-    private Double price;
+    private BigDecimal price;
 
     public Integer getBlockOrder() {
         return blockOrder;
@@ -24,11 +25,11 @@ public class PricingBlockDTO {
         this.durationHours = durationHours;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 }

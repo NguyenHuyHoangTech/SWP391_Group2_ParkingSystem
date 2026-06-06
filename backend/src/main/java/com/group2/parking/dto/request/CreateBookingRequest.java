@@ -1,14 +1,12 @@
-package com.group2.parking.dto;
+package com.group2.parking.dto.request;
 
 import java.time.LocalDateTime;
 
-public record BookingResponse(
-        Integer id,
+public record CreateBookingRequest(
         Integer accountId,
         Integer buildingId,
         Integer vehicleTypeId,
         String licensePlate,
         LocalDateTime startTime,
-        LocalDateTime endTime,
-        String status
+        LocalDateTime endTime
 ) {}
