@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import './StaffList.css'; 
+import './StaffList.css';
+import buildingApi from '../api/buildingApi';
+import vehicleTypeApi from '../api/vehicleTypeApi';
 
 const API_URL = 'http://localhost:8080/api/customer/bookings';
 
@@ -9,7 +11,9 @@ function CustomerBooking() {
   const [error, setError] = useState(null);
   const [accountId, setAccountId] = useState(20); // Default account ID for testing, manager1 is 20
   const [showModal, setShowModal] = useState(false);
-  
+  const [buildings, setBuildings] = useState([]);
+  const [vehicleTypes, setVehicleTypes] = useState([]);
+
   const [formData, setFormData] = useState({
     accountId: 20,
     buildingId: 1,
@@ -42,6 +46,11 @@ function CustomerBooking() {
     setFormData(prev => ({ ...prev, accountId: accountId }));
   }, [fetchBookings, accountId]);
 
+  useEffect(() => {
+    buildingApi.getAll().then(r => setBuildings(r.data.data || [])).catch(console.error);
+    vehicleTypeApi.getAll().then(r => setVehicleTypes(r.data.data || [])).catch(console.error);
+  }, []);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -50,20 +59,30 @@ function CustomerBooking() {
     }));
   };
 
+  const [customAlert, setCustomAlert] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState(null);
+
+  const showAlert = (msg) => setCustomAlert(msg);
+
   const handleAddBooking = async (event) => {
     event.preventDefault();
+
+    if (!formData.licensePlate) { showAlert("Vui lòng nhập Biển số xe (License Plate)!"); return; }
+    if (!formData.buildingId) { showAlert("Vui lòng chọn Tòa nhà (Building)!"); return; }
+    if (!formData.vehicleTypeId) { showAlert("Vui lòng chọn Loại xe (Vehicle Type)!"); return; }
+    if (!formData.startTime) { showAlert("Vui lòng chọn Thời gian bắt đầu (Start Time)!"); return; }
+    if (!formData.endTime) { showAlert("Vui lòng chọn Thời gian kết thúc (End Time)!"); return; }
+
     try {
       const payload = {
         ...formData,
         accountId: Number(formData.accountId),
         buildingId: Number(formData.buildingId),
         vehicleTypeId: Number(formData.vehicleTypeId),
-        // Ensure format is ISO string without Z for LocalDateTime if needed, or backend might handle ISO
-        // React datetime-local returns YYYY-MM-DDTHH:mm
-        startTime: formData.startTime + ':00', 
-        endTime: formData.endTime + ':00'
+        startTime: formData.startTime.length === 16 ? formData.startTime + ':00' : formData.startTime,
+        endTime: formData.endTime.length === 16 ? formData.endTime + ':00' : formData.endTime
       };
-
+      
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: {
@@ -76,36 +95,47 @@ function CustomerBooking() {
         setShowModal(false);
         setFormData({ ...formData, licensePlate: '', startTime: '', endTime: '' });
         await fetchBookings();
-        alert('Booking created successfully!');
+        showAlert('Booking created successfully!');
       } else {
         let msg = 'Failed to create booking.';
         try {
           const errData = await response.json();
           msg = errData.message || msg;
-        } catch(e) {}
-        alert(msg);
+        } catch (e) { }
+        showAlert(msg);
       }
     } catch (e) {
       console.error('Error creating booking:', e);
-      alert('An error occurred while creating the booking.');
+      showAlert('An error occurred while creating the booking.');
     }
   };
 
-  const handleCancelBooking = async (id) => {
-    if (!window.confirm('Are you sure you want to cancel this booking?')) return;
+  const executeCancel = async (id) => {
     try {
       const response = await fetch(`${API_URL}/${id}/cancel`, {
         method: 'PATCH',
       });
       if (response.ok) {
         await fetchBookings();
+        showAlert('Booking cancelled successfully!');
       } else {
-        alert('Failed to cancel booking.');
+        showAlert('Failed to cancel booking.');
       }
     } catch (e) {
       console.error('Error canceling booking:', e);
-      alert('An error occurred while canceling the booking.');
+      showAlert('An error occurred while canceling the booking.');
     }
+  };
+
+  const handleCancelBooking = (id) => {
+    setConfirmDialog({
+      message: 'Are you sure you want to cancel this booking?',
+      onConfirm: () => {
+        setConfirmDialog(null);
+        executeCancel(id);
+      },
+      onCancel: () => setConfirmDialog(null)
+    });
   };
 
   const handleExpireOverdue = async () => {
@@ -114,15 +144,24 @@ function CustomerBooking() {
         method: 'POST',
       });
       if (response.ok) {
-        alert('Successfully expired overdue bookings.');
+        showAlert('Successfully expired overdue bookings.');
         await fetchBookings();
       } else {
-        alert('Failed to expire overdue bookings.');
+        showAlert('Failed to expire overdue bookings.');
       }
     } catch (e) {
       console.error('Error expiring bookings:', e);
-      alert('An error occurred while expiring bookings.');
+      showAlert('An error occurred while expiring bookings.');
     }
+  };
+
+  const formatDate = (dateInput) => {
+    if (!dateInput) return 'N/A';
+    if (Array.isArray(dateInput)) {
+      const [year, month, day, hour, minute, second] = dateInput;
+      return new Date(year, month - 1, day, hour || 0, minute || 0, second || 0).toLocaleString();
+    }
+    return new Date(dateInput).toLocaleString();
   };
 
   return (
@@ -134,9 +173,9 @@ function CustomerBooking() {
         </div>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
           <label style={{ fontWeight: 'bold' }}>Test with Account ID: </label>
-          <input 
-            type="number" 
-            value={accountId} 
+          <input
+            type="number"
+            value={accountId}
             onChange={(e) => setAccountId(Number(e.target.value))}
             style={{ padding: '8px', width: '80px', borderRadius: '4px', border: '1px solid #ccc' }}
           />
@@ -148,6 +187,29 @@ function CustomerBooking() {
           </button>
         </div>
       </div>
+
+      {customAlert && (
+        <div className="staff-modal" style={{ zIndex: 10000 }}>
+          <div className="modal-content" style={{ maxWidth: '400px', textAlign: 'center' }}>
+            <h3 style={{ marginTop: 0 }}>Notification</h3>
+            <p>{customAlert}</p>
+            <button className="submit-btn" onClick={() => setCustomAlert(null)} style={{ marginTop: '1rem' }}>OK</button>
+          </div>
+        </div>
+      )}
+
+      {confirmDialog && (
+        <div className="staff-modal" style={{ zIndex: 10000 }}>
+          <div className="modal-content" style={{ maxWidth: '400px', textAlign: 'center' }}>
+            <h3 style={{ marginTop: 0 }}>Confirmation</h3>
+            <p>{confirmDialog.message}</p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1.5rem' }}>
+              <button className="cancel-btn" onClick={confirmDialog.onCancel}>Cancel</button>
+              <button className="submit-btn" style={{ backgroundColor: '#dc3545' }} onClick={confirmDialog.onConfirm}>Confirm</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="staff-loading">Loading bookings...</div>
@@ -179,12 +241,12 @@ function CustomerBooking() {
                     </span>
                   </td>
                   <td>{booking.licensePlate}</td>
-                  <td>{new Date(booking.createdAt).toLocaleString()}</td>
+                  <td>{formatDate(booking.createdAt)}</td>
                   <td>
                     {booking.status === 'CONFIRMED' && (
-                      <button className="action-btn delete-btn" onClick={() => handleCancelBooking(booking.id)}>
-                        Cancel Booking
-                      </button>
+                       <button className="action-btn delete-btn" onClick={() => handleCancelBooking(booking.id)}>
+                         Cancel Booking
+                       </button>
                     )}
                   </td>
                 </tr>
@@ -211,29 +273,34 @@ function CustomerBooking() {
                   name="licensePlate"
                   value={formData.licensePlate}
                   onChange={handleInputChange}
-                  required
                   placeholder="e.g. 29A-12345"
                 />
               </div>
               <div className="form-group">
-                <label>Building ID</label>
-                <input
-                  type="number"
+                <label>Building</label>
+                <select
                   name="buildingId"
                   value={formData.buildingId}
                   onChange={handleInputChange}
-                  required
-                />
+                >
+                  <option value="">-- Select Building --</option>
+                  {buildings.map(b => (
+                    <option key={b.id} value={b.id}>{b.name}</option>
+                  ))}
+                </select>
               </div>
               <div className="form-group">
-                <label>Vehicle Type ID</label>
-                <input
-                  type="number"
+                <label>Vehicle Type</label>
+                <select
                   name="vehicleTypeId"
                   value={formData.vehicleTypeId}
                   onChange={handleInputChange}
-                  required
-                />
+                >
+                  <option value="">-- Select Vehicle Type --</option>
+                  {vehicleTypes.map(v => (
+                    <option key={v.id} value={v.id}>{v.name}</option>
+                  ))}
+                </select>
               </div>
               <div className="form-group">
                 <label>Start Time</label>
@@ -242,7 +309,6 @@ function CustomerBooking() {
                   name="startTime"
                   value={formData.startTime}
                   onChange={handleInputChange}
-                  required
                 />
               </div>
               <div className="form-group">
@@ -252,7 +318,6 @@ function CustomerBooking() {
                   name="endTime"
                   value={formData.endTime}
                   onChange={handleInputChange}
-                  required
                 />
               </div>
               <div className="form-actions">
