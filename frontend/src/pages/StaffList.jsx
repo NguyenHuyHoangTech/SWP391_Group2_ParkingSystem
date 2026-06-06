@@ -211,10 +211,10 @@ function StaffList() {
       <div className="staff-header">
         <div>
           <h1>Staff List</h1>
-          <span className="staff-count">{staffList.length} members</span>
+          <p className="staff-subtitle">Manage staff accounts, roles, and building assignments ({staffList.length} members)</p>
         </div>
         <button type="button" className="add-staff-btn" onClick={openAddModal}>
-          Add Staff
+          + Add Staff
         </button>
       </div>
 
@@ -294,7 +294,7 @@ function StaffList() {
             <div className="modal-header">
               <h2 id="add-staff-title">Add Staff Account</h2>
               <button type="button" className="modal-close-btn" onClick={closeAddModal} disabled={submitting}>
-                x
+                ✕
               </button>
             </div>
 
