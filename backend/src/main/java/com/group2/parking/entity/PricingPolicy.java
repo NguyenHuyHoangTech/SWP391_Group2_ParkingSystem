@@ -2,20 +2,18 @@ package com.group2.parking.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.*;
-
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "PricingPolicy")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
-@AllArgsConstructor
-
 public class PricingPolicy {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -23,17 +21,13 @@ public class PricingPolicy {
     @Column(nullable = false)
     private String name;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_type_id")
-    @ToString.Exclude // CHẶN VÒNG LẶP
     private VehicleType vehicleType;
 
     @Column(length = 50)
     private String status = "ACTIVE";
 
     @OneToMany(mappedBy = "pricingPolicy", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("pricingPolicy")
-    private List<PricingBlock> blocks = new ArrayList<>(); // danh sách block kèm
-
-
+    private List<PricingBlock> blocks = new ArrayList<>();
 }

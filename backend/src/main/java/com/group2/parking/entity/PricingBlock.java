@@ -1,35 +1,33 @@
 package com.group2.parking.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "PricingBlock")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
-@AllArgsConstructor
-
 public class PricingBlock {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer Id;
+    private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "pricing_policy_id")
-    @JsonIgnoreProperties("pricingBlocks")
-    @JsonIgnore
-    private PricingPolicy pricingPolicy;
-
-    @Column(name = "block_order")
+    @Column(name = "block_order", nullable = false)
     private Integer blockOrder;
-    @Column(name = "duration_hours")
-    private Integer durationHours;// kéo dài bao nhiêu giờ
-    @Column(nullable = false)
-    private double price;
 
+    @Column(name = "duration_hours", nullable = false)
+    private Integer durationHours;
 
+    @Column(name = "price", nullable = false, precision = 12, scale = 2)
+    private BigDecimal price;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "policy_id", nullable = false)
+    private PricingPolicy pricingPolicy;
 }

@@ -1,7 +1,7 @@
 package com.group2.parking.controller;
 
-import com.group2.parking.dto.BookingResponse;
-import com.group2.parking.dto.CreateBookingRequest;
+import com.group2.parking.dto.response.BookingResponse;
+import com.group2.parking.dto.request.CreateBookingRequest;
 import com.group2.parking.service.BookingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +12,7 @@ import java.util.List;
 @RequestMapping("/api/customer/bookings")
 @CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
-public class CustomerBookingController {
+public class UserBookingController {
 
     private final BookingService bookingService;
 

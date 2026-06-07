@@ -1,4 +1,4 @@
-package com.group2.parking.dto;
+package com.group2.parking.dto.response;
 
 public record CapacityResponse(
         Integer buildingId,

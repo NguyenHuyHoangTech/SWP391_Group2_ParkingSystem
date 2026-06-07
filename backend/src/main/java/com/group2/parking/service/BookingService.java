@@ -1,7 +1,7 @@
 package com.group2.parking.service;
 
-import com.group2.parking.dto.BookingResponse;
-import com.group2.parking.dto.CreateBookingRequest;
+import com.group2.parking.dto.response.BookingResponse;
+import com.group2.parking.dto.request.CreateBookingRequest;
 import com.group2.parking.entity.Booking;
 import com.group2.parking.repository.BookingRepository;
 import com.group2.parking.repository.ParkingSessionRepository;
@@ -104,6 +104,7 @@ public class BookingService {
 
         for (Booking booking : bookings) {
             booking.setStatus("EXPIRED");
+            booking.setExpiredAt(LocalDateTime.now());
         }
     }
 
