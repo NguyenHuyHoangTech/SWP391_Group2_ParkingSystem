@@ -41,4 +41,10 @@ public class PricingPolicyController {
     public void delete(@PathVariable Integer id) {
         pricingPolicyService.deletePolicies(id);
     }
+
+    //  API CẬP NHẬT (UPDATE) CHÍNH SÁCH GIÁ
+    @PutMapping("/{id}")
+    public PricingPolicy updatePricingPolicy(@PathVariable Integer id, @RequestBody PricingPolicyDTO dto){
+        return pricingPolicyService.updatePolicy(id, dto);
+    }
 }

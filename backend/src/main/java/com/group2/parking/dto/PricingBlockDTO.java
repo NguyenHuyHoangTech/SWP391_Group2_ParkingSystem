@@ -1,34 +1,28 @@
 package com.group2.parking.dto;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Table(name = "PricingBlockDTO")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 
 
 
 public class PricingBlockDTO {
+    @Id
+    private Long id;
     private Integer blockOrder;
     private Integer durationHours;
     private Double price;
 
-    public Integer getBlockOrder() {
-        return blockOrder;
-    }
 
-    public void setBlockOrder(Integer blockOrder) {
-        this.blockOrder = blockOrder;
-    }
-
-    public Integer getDurationHours() {
-        return durationHours;
-    }
-
-    public void setDurationHours(Integer durationHours) {
-        this.durationHours = durationHours;
-    }
-
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
 }

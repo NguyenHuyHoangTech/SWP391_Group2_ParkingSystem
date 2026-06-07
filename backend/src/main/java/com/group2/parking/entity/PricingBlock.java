@@ -1,11 +1,17 @@
 package com.group2.parking.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "PricingBlock")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 
 public class PricingBlock {
     @Id
@@ -15,6 +21,7 @@ public class PricingBlock {
     @ManyToOne
     @JoinColumn(name = "pricing_policy_id")
     @JsonIgnoreProperties("pricingBlocks")
+    @JsonIgnore
     private PricingPolicy pricingPolicy;
 
     @Column(name = "block_order")
@@ -24,43 +31,5 @@ public class PricingBlock {
     @Column(nullable = false)
     private double price;
 
-    public Integer getId() {
-        return Id;
-    }
 
-    public void setId(Integer id) {
-        Id = id;
-    }
-
-    public PricingPolicy getPricingPolicy() {
-        return pricingPolicy;
-    }
-
-    public void setPricingPolicy(PricingPolicy pricingPolicy) {
-        this.pricingPolicy = pricingPolicy;
-    }
-
-    public Integer getBlockOrder() {
-        return blockOrder;
-    }
-
-    public void setBlockOrder(Integer blockOrder) {
-        this.blockOrder = blockOrder;
-    }
-
-    public Integer getDurationHours() {
-        return durationHours;
-    }
-
-    public void setDurationHours(Integer durationHours) {
-        this.durationHours = durationHours;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
 }
