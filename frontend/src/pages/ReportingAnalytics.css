@@ -1,3 +1,4 @@
+/* Layout and visual styling for PBMS-34 and PBMS-35 reporting dashboard. */
 .analytics-container {
   padding: 24px;
   max-width: 1100px;
@@ -26,6 +27,7 @@
   font-size: 0.9rem;
 }
 
+/* Period controls are styled as a compact segmented filter group. */
 .period-controls {
   display: inline-flex;
   border: 1.5px solid #d8dee8;
@@ -76,6 +78,7 @@
   color: #c62828;
 }
 
+/* Summary cards show totals derived from the loaded chart datasets. */
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -140,6 +143,7 @@
   margin-bottom: 14px;
 }
 
+/* Chart rows use stable grid columns so labels, bars, and values align consistently. */
 .chart-row {
   display: grid;
   grid-template-columns: 120px minmax(120px, 1fr) 150px;
@@ -186,6 +190,7 @@
   text-align: right;
 }
 
+/* Flow chart compares entry and exit counts inside each time frame bucket. */
 .flow-row {
   display: grid;
   grid-template-columns: 120px minmax(0, 1fr);
@@ -284,6 +289,7 @@
   to { transform: rotate(360deg); }
 }
 
+/* Responsive rules keep charts and metric cards usable on small screens. */
 @media (max-width: 760px) {
   .analytics-container {
     padding: 16px;

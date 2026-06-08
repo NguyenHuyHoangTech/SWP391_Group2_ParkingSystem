@@ -1,5 +1,7 @@
+-- Test data for PBMS-34 revenue statistics and PBMS-35 occupancy flow charts.
 USE ParkingManagementSystem;
 
+-- Store generated IDs so related test rows can be connected consistently.
 DECLARE @buildingId INT;
 DECLARE @floorId INT;
 DECLARE @zoneId INT;
@@ -7,6 +9,7 @@ DECLARE @slot1 INT, @slot2 INT, @slot3 INT;
 DECLARE @card1 INT, @card2 INT, @card3 INT;
 DECLARE @session1 INT, @session2 INT, @session3 INT;
 
+-- Create a dedicated test building, floor, zone, and slots for reporting data.
 INSERT INTO ParkingBuilding (name, address, status)
 VALUES ('Test Building', 'FPT University', 'OPEN');
 SET @buildingId = SCOPE_IDENTITY();
@@ -43,6 +46,7 @@ INSERT INTO ParkingCard (card_code, status)
 VALUES ('TEST-CARD-003', 'AVAILABLE');
 SET @card3 = SCOPE_IDENTITY();
 
+-- Completed sessions provide check-in and check-out timestamps for occupancy flow aggregation.
 INSERT INTO ParkingSession
 (account_id, building_id, slot_id, vehicle_type_id, card_id, license_plate, entry_gate, exit_gate, check_in_time, check_out_time, status)
 VALUES
@@ -61,6 +65,7 @@ VALUES
 (NULL, @buildingId, @slot3, 1, @card3, '51A-33333', 'Gate A', 'Gate B', '2026-06-02 14:00:00', '2026-06-02 16:30:00', 'COMPLETED');
 SET @session3 = SCOPE_IDENTITY();
 
+-- Successful payments provide revenue rows for daily, weekly, and monthly aggregation tests.
 INSERT INTO Payment
 (session_id, monthly_ticket_id, amount, payment_method, status, created_at)
 VALUES

@@ -1,9 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import './StaffList.css';
 
+// Staff Management API base path used by the list, create modal, and status update actions.
 const API_URL = 'http://localhost:8080/api/staff';
+// Client-side email validation mirrors backend validation before sending create requests.
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Phone must contain only digits and be 10 or 11 characters long.
 const PHONE_PATTERN = /^\d{10,11}$/;
+// Defensive filter prevents raw SQL or framework exception text from appearing in the modal.
 const SQL_ERROR_PATTERN = /(sql|hibernate|constraint|duplicate key|stack trace|exception|violation of unique key)/i;
 
 function StaffList() {
@@ -81,6 +85,7 @@ function StaffList() {
     resetForm();
   };
 
+  // Validates Add Staff form fields before the API call so malformed data is rejected in the modal.
   const validateStaffForm = () => {
     const username = formData.username.trim();
     const password = formData.password.trim();
@@ -128,6 +133,7 @@ function StaffList() {
     return '';
   };
 
+  // Keeps backend errors concise and safe for display inside the red validation box.
   const getFriendlyErrorMessage = (message) => {
     if (!message || SQL_ERROR_PATTERN.test(message)) {
       return 'Invalid staff account details.';
@@ -144,6 +150,7 @@ function StaffList() {
 
     const validationError = validateStaffForm();
     if (validationError) {
+      // Stop submission early so invalid form data never reaches the backend from the UI.
       setFormError(validationError);
       return;
     }
@@ -169,6 +176,7 @@ function StaffList() {
       });
 
       if (!response.ok) {
+        // Backend validation messages are shown directly when they are already safe and concise.
         let message = 'Failed to create staff account.';
 
         try {

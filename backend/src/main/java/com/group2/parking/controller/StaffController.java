@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+// Controller exposes Staff Management APIs and converts validation failures to user-friendly responses.
 @RestController
 @RequestMapping("/api/staff")
 @CrossOrigin(origins = "http://localhost:5173")
@@ -18,11 +19,17 @@ public class StaffController {
     @Autowired
     private AccountService accountService;
 
+    /**
+     * GET /api/staff returns staff and manager accounts for the staff list table.
+     */
     @GetMapping
     public List<Account> getStaffList() {
         return accountService.getAllStaffAndManagers();
     }
 
+    /**
+     * POST /api/staff creates a staff account and returns HTTP 400 for validation or duplicate errors.
+     */
     @PostMapping
     public ResponseEntity<?> createStaff(@RequestBody Account account) {
         try {
@@ -35,6 +42,9 @@ public class StaffController {
         }
     }
 
+    /**
+     * PUT /api/staff/{id}/status updates the staff account status used by PBMS-39.
+     */
     @PutMapping("/{id}/status")
     public ResponseEntity<?> updateStaffStatus(
             @PathVariable Integer id,
@@ -51,6 +61,7 @@ public class StaffController {
         }
     }
 
+    // Converts database constraint failures into concise messages safe for the frontend modal.
     private String getFriendlyDataIntegrityMessage(DataIntegrityViolationException ex) {
         String message = ex.getMostSpecificCause() == null
                 ? ""

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+// Controller exposes reporting APIs for PBMS-34 revenue statistics and PBMS-35 occupancy flow statistics.
 @RestController
 @RequestMapping("/api/reports")
 @CrossOrigin(origins = "*")
@@ -18,6 +19,10 @@ public class ReportingController {
 
     private final ReportingService reportingService;
 
+    /**
+     * GET /api/reports/revenue returns aggregated revenue data grouped by daily, weekly, or monthly period.
+     * Admin receives all revenue, while manager requests can be scoped by managerId.
+     */
     @GetMapping("/revenue")
     public ResponseEntity<?> getRevenueStatistics(
             @RequestParam(defaultValue = "daily") String period,
@@ -32,6 +37,10 @@ public class ReportingController {
         }
     }
 
+    /**
+     * GET /api/reports/occupancy-flow returns vehicle entry and exit counts grouped by time frames of the day.
+     * The same role and managerId parameters are used for admin-wide or manager-scoped reporting.
+     */
     @GetMapping("/occupancy-flow")
     public ResponseEntity<?> getOccupancyFlowStatistics(
             @RequestParam(defaultValue = "daily") String period,

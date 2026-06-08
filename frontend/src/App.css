@@ -1,8 +1,10 @@
+/* App-level shell styles for the parking management navigation and page background. */
 .app-shell {
   min-height: 100vh;
   background: #f6f8fb;
 }
 
+/* Sticky navigation keeps module switching available while users review management pages. */
 .app-nav {
   position: sticky;
   top: 0;
@@ -45,6 +47,7 @@
   color: #1e293b;
 }
 
+/* Active tab state highlights the currently selected management module. */
 .app-tab-active {
   background: #1a73e8;
   color: #fff;
@@ -55,6 +58,7 @@
   color: #fff;
 }
 
+/* Mobile layout stacks navigation so tabs remain readable on narrow screens. */
 @media (max-width: 640px) {
   .app-nav {
     align-items: flex-start;

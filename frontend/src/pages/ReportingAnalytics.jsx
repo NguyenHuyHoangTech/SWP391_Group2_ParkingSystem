@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import './ReportingAnalytics.css';
 
+// Backend reporting API base path for PBMS-34 and PBMS-35.
 const REPORT_API_URL = 'http://localhost:8080/api/reports';
+// Period filters supported by backend aggregation and displayed as segmented buttons.
 const PERIODS = [
   { label: 'Daily', value: 'daily' },
   { label: 'Weekly', value: 'weekly' },
@@ -15,6 +17,7 @@ function ReportingAnalytics() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Fetches revenue and occupancy flow datasets together so the dashboard updates as one report view.
   const fetchReportData = useCallback(async () => {
     try {
       setLoading(true);
@@ -54,6 +57,7 @@ function ReportingAnalytics() {
     fetchReportData();
   }, [fetchReportData]);
 
+  // Summary values feed the metric cards above the detailed charts.
   const totalRevenue = useMemo(
     () => revenueData.reduce((total, item) => total + Number(item.revenue || 0), 0),
     [revenueData],
@@ -80,6 +84,7 @@ function ReportingAnalytics() {
     1,
   );
 
+  // Revenue amounts are displayed in VND to match parking payment data.
   const formatCurrency = (value) => new Intl.NumberFormat('vi-VN', {
     style: 'currency',
     currency: 'VND',
@@ -145,6 +150,7 @@ function ReportingAnalytics() {
               <div className="analytics-empty">No revenue data found.</div>
             ) : (
               <>
+                {/* Bar lengths are scaled from the largest revenue bucket for chart readability. */}
                 <div className="revenue-chart" aria-label="Revenue chart">
                   {revenueData.map((item) => {
                     const width = `${Math.max((Number(item.revenue || 0) / maxRevenue) * 100, 2)}%`;
@@ -194,6 +200,7 @@ function ReportingAnalytics() {
               <div className="analytics-empty">No occupancy flow data found.</div>
             ) : (
               <>
+                {/* Entry and exit bars share one max value so both flows can be compared in each time frame. */}
                 <div className="flow-chart" aria-label="Occupancy flow chart">
                   {flowData.map((item) => {
                     const entryWidth = `${Math.max((Number(item.entryCount || 0) / maxFlow) * 100, 2)}%`;

@@ -7,8 +7,10 @@ import FloorListPage from './pages/Floors/FloorListPage';
 import ZoneListPage from './pages/Zones/ZoneListPage';
 import './App.css';
 
+// Temporary role seed used by local screens that expect an admin role in browser storage.
 localStorage.setItem('userRole', 'ADMIN');
 
+// Main navigation items route users between parking management modules without introducing a router.
 const NAV_ITEMS = [
   { key: 'floors',      label: '🏢 Quản lý Tầng' },
   { key: 'zones',       label: '🅿️ Quản lý Khu vực' },
@@ -21,6 +23,7 @@ const NAV_ITEMS = [
 function App() {
   const [currentScreen, setCurrentScreen] = useState('floors');
 
+  // Selects the active page component while keeping existing page state isolated per screen.
   const renderScreen = () => {
     switch (currentScreen) {
       case 'floors':    return <FloorListPage />;

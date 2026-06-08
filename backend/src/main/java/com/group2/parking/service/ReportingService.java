@@ -9,19 +9,26 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Locale;
 
+// Service contains PBMS-34 and PBMS-35 reporting business logic using SQL joins over parking data.
 @Service
 @RequiredArgsConstructor
 public class ReportingService {
 
+    // Supported grouping filters used by both revenue and occupancy flow reports.
     private static final List<String> PERIODS = List.of("daily", "weekly", "monthly");
 
     private final JdbcTemplate jdbcTemplate;
 
+    /**
+     * Aggregates successful payment revenue for chart display.
+     * Revenue is joined from Payment to ParkingSession and optionally scoped to a manager's floor.
+     */
     public List<RevenueStatisticResponse> getRevenueStatistics(String period, String role, Integer managerId) {
         String normalizedPeriod = normalizePeriod(period);
         String scopeClause = buildManagerScopeClause(role, managerId);
         String grouping = getRevenueGrouping(normalizedPeriod);
 
+        // Native SQL keeps the aggregation close to the database schema used by the reporting use cases.
         String sql = """
                 SELECT %s,
                        SUM(p.amount) AS revenue,
@@ -45,11 +52,16 @@ public class ReportingService {
                 .build());
     }
 
+    /**
+     * Calculates vehicle entry and exit flow for chart display.
+     * check_in_time contributes entry counts, while check_out_time contributes exit counts.
+     */
     public List<OccupancyFlowPointResponse> getOccupancyFlowStatistics(String period, String role, Integer managerId) {
         String normalizedPeriod = normalizePeriod(period);
         String scopeClause = buildManagerScopeClause(role, managerId);
         String dateClause = getFlowDateClause(normalizedPeriod);
 
+        // UNION ALL combines entry and exit events so both flows can be grouped into the same time buckets.
         String sql = """
                 SELECT flow.bucket_order,
                        CASE flow.bucket_order
@@ -99,6 +111,7 @@ public class ReportingService {
                 .build());
     }
 
+    // Validates and normalizes the requested report period before SQL generation.
     private String normalizePeriod(String period) {
         if (period == null || period.isBlank()) {
             return "daily";
@@ -112,6 +125,7 @@ public class ReportingService {
         return normalized;
     }
 
+    // Builds the manager-only floor scope; admin requests intentionally receive no additional filter.
     private String buildManagerScopeClause(String role, Integer managerId) {
         if (role == null || role.isBlank() || role.trim().equalsIgnoreCase("ADMIN")) {
             return "";
@@ -128,6 +142,7 @@ public class ReportingService {
         return "AND f.manager_id = " + managerId;
     }
 
+    // Select expression for the revenue label and stable sort keys for each period.
     private String getRevenueGrouping(String period) {
         return switch (period) {
             case "weekly" -> """
@@ -148,6 +163,7 @@ public class ReportingService {
         };
     }
 
+    // GROUP BY clause must match the selected period fields for SQL Server aggregation.
     private String getRevenueGroupBy(String period) {
         return switch (period) {
             case "weekly" -> "DATEPART(YEAR, p.created_at), DATEPART(ISO_WEEK, p.created_at)";
@@ -156,6 +172,7 @@ public class ReportingService {
         };
     }
 
+    // Time window used by PBMS-35 to compare today's, last week's, or last month's flow.
     private String getFlowDateClause(String period) {
         return switch (period) {
             case "weekly" -> "AND event_time >= DATEADD(DAY, -7, GETDATE())";
