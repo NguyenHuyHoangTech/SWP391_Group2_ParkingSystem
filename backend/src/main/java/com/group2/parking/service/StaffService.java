@@ -1,8 +1,5 @@
 package com.group2.parking.service;
 
-import com.group2.parking.dto.StaffCreateRequest;
-import com.group2.parking.dto.StaffResponse;
-import com.group2.parking.dto.StaffStatusUpdateRequest;
 import com.group2.parking.entity.Account;
 import com.group2.parking.repository.AccountRepository;
 import com.group2.parking.repository.ParkingBuildingRepository;
@@ -26,15 +23,11 @@ public class StaffService {
     private final AccountRepository accountRepository;
     private final ParkingBuildingRepository parkingBuildingRepository;
 
-    public List<StaffResponse> getAllStaff() {
-        List<Account> accounts = accountRepository.findByRoleIn(List.of("STAFF", "MANAGER"));
-
-        return accounts.stream()
-                .map(this::toStaffResponse)
-                .toList();
+    public List<Account> getAllStaff() {
+        return accountRepository.findByRoleIn(List.of("STAFF", "MANAGER"));
     }
 
-    public StaffResponse createStaff(StaffCreateRequest request) {
+    public Account createStaff(Account request) {
         validateCreateRequest(request);
 
         String username = request.getUsername().trim();
@@ -65,21 +58,23 @@ public class StaffService {
                 .status(ACTIVE_STATUS)
                 .build();
 
-        return toStaffResponse(accountRepository.save(account));
+        return accountRepository.save(account);
     }
 
-    public StaffResponse updateStaffStatus(Integer id, StaffStatusUpdateRequest request) {
-        validateStatusUpdateRequest(request);
+    public Account updateStaffStatus(Integer id, String status) {
+        if (isBlank(status) || !ALLOWED_STATUSES.contains(status.trim())) {
+            throw new IllegalArgumentException("Status must be ACTIVE or INACTIVE.");
+        }
 
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Staff account not found."));
 
-        account.setStatus(request.getStatus().trim());
+        account.setStatus(status.trim());
 
-        return toStaffResponse(accountRepository.save(account));
+        return accountRepository.save(account);
     }
 
-    private void validateCreateRequest(StaffCreateRequest request) {
+    private void validateCreateRequest(Account request) {
         if (request == null) {
             throw new IllegalArgumentException("Staff data is required.");
         }
@@ -121,33 +116,11 @@ public class StaffService {
         }
     }
 
-    private void validateStatusUpdateRequest(StaffStatusUpdateRequest request) {
-        if (request == null || isBlank(request.getStatus())) {
-            throw new IllegalArgumentException("Status is required.");
-        }
-
-        if (!ALLOWED_STATUSES.contains(request.getStatus().trim())) {
-            throw new IllegalArgumentException("Status must be ACTIVE or INACTIVE.");
-        }
-    }
-
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
     }
 
     private String normalizeOptional(String value) {
         return isBlank(value) ? null : value.trim();
-    }
-
-    private StaffResponse toStaffResponse(Account account) {
-        return StaffResponse.builder()
-                .id(account.getId())
-                .username(account.getUsername())
-                .email(account.getEmail())
-                .phone(account.getPhone())
-                .role(account.getRole())
-                .buildingId(account.getBuildingId())
-                .status(account.getStatus())
-                .build();
     }
 }
