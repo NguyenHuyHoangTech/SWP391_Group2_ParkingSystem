@@ -3,11 +3,14 @@ package com.group2.parking.controller;
 import com.group2.parking.entity.Account;
 import com.group2.parking.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
+// Controller exposes Staff Management APIs and converts validation failures to user-friendly responses.
 @RestController
 @RequestMapping("/api/staff")
 @CrossOrigin(origins = "http://localhost:5173")
@@ -16,19 +19,70 @@ public class StaffController {
     @Autowired
     private AccountService accountService;
 
+    /**
+     * GET /api/staff returns staff and manager accounts for the staff list table.
+     */
     @GetMapping
     public List<Account> getStaffList() {
         return accountService.getAllStaffAndManagers();
     }
 
+    /**
+     * POST /api/staff creates a staff account and returns HTTP 400 for validation or duplicate errors.
+     */
     @PostMapping
-    public Account createStaff(@RequestBody Account account) {
-        return accountService.createStaff(account);
+    public ResponseEntity<?> createStaff(@RequestBody Account account) {
+        try {
+            Account createdStaff = accountService.createStaff(account);
+            return ResponseEntity.ok(createdStaff);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
+        } catch (DataIntegrityViolationException ex) {
+            return ResponseEntity.badRequest().body(Map.of("message", getFriendlyDataIntegrityMessage(ex)));
+        }
     }
 
+    /**
+     * PUT /api/staff/{id}/status updates the staff account status used by PBMS-39.
+     */
     @PutMapping("/{id}/status")
-    public Account updateStatus(@PathVariable Integer id, @RequestBody Map<String, String> payload) {
-        String status = payload.get("status");
-        return accountService.updateStatus(id, status);
+    public ResponseEntity<?> updateStaffStatus(
+            @PathVariable Integer id,
+            @RequestBody Map<String, String> request) {
+        try {
+            String status = request.get("status");
+            if (status == null || status.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Status is required."));
+            }
+            Account updatedStaff = accountService.updateStatus(id, status.trim());
+            return ResponseEntity.ok(updatedStaff);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
+        }
+    }
+
+    // Converts database constraint failures into concise messages safe for the frontend modal.
+    private String getFriendlyDataIntegrityMessage(DataIntegrityViolationException ex) {
+        String message = ex.getMostSpecificCause() == null
+                ? ""
+                : ex.getMostSpecificCause().getMessage().toLowerCase();
+
+        if (message.contains("username")) {
+            return "Username already exists.";
+        }
+
+        if (message.contains("email")) {
+            return "Email already exists.";
+        }
+
+        if (message.contains("phone")) {
+            return "Phone number already exists.";
+        }
+
+        if (message.contains("building")) {
+            return "Building does not exist.";
+        }
+
+        return "Invalid staff account details.";
     }
 }
