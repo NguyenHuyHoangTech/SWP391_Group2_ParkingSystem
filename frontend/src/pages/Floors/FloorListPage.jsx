@@ -48,16 +48,18 @@ function FloorListPage() {
           <table style={{ width:'100%',borderCollapse:'collapse',background:'#fff' }}>
             <thead>
               <tr style={{ background:'#1a1a2e',color:'#fff' }}>
-                {['#','Tên tầng','Cấp tầng','Loại xe','Tòa nhà','Sức chứa','Đã dùng','Còn trống','Tình trạng','Thao tác'].map(h => (
+                {['#','Tên tầng','Cấp tầng','Loại xe','Tòa nhà','Đã chia zone','🟢 Trống','🔴 Có xe','🔒 Bảo trì','Lấp đầy','Thao tác'].map(h => (
                   <th key={h} style={{ padding:'12px 14px',textAlign:'left',fontSize:'0.82rem',fontWeight:600,letterSpacing:'0.3px' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {floors.length === 0 ? (
-                <tr><td colSpan={10} style={{ textAlign:'center',padding:40,color:'#999' }}>Chưa có tầng nào</td></tr>
+                <tr><td colSpan={11} style={{ textAlign:'center',padding:40,color:'#999' }}>Chưa có tầng nào</td></tr>
               ) : floors.map((f, i) => {
-                const pct = f.capacity ? Math.round((f.usedCapacity / f.capacity) * 100) : 0;
+                // Tỉ lệ lấp đầy = xe đang đỗ / sức chứa kế hoạch của tầng
+                const realTotal = f.totalSlots || 0;
+                const realPct = f.capacity > 0 ? Math.round((f.occupiedSlots / f.capacity) * 100) : 0;
                 return (
                   <tr key={f.id} style={{ borderBottom:'1px solid #f0f0f0' }}>
                     <td style={{ padding:'12px 14px',fontSize:'0.9rem' }}>{i+1}</td>
@@ -65,14 +67,37 @@ function FloorListPage() {
                     <td style={{ padding:'12px 14px' }}><span style={badge('#1a73e8','#e8f0fe')}>{f.floorLevel < 0 ? `Hầm ${Math.abs(f.floorLevel)}` : `Tầng ${f.floorLevel}`}</span></td>
                     <td style={{ padding:'12px 14px' }}>{f.vehicleTypeName ? <span style={badge('#2e7d32','#e8f5e9')}>{f.vehicleTypeName}</span> : <span style={{ color:'#999' }}>Chưa cấu hình</span>}</td>
                     <td style={{ padding:'12px 14px' }}>{f.buildingName}</td>
-                    <td style={{ padding:'12px 14px' }}>{f.capacity}</td>
-                    <td style={{ padding:'12px 14px' }}>{f.usedCapacity ?? 0}</td>
-                    <td style={{ padding:'12px 14px',fontWeight:600,color: f.remainingCapacity === 0 ? '#e53935' : '#43a047' }}>{f.remainingCapacity ?? f.capacity}</td>
+                    {/* Đã chia zone: zone_capacity / floor_capacity */}
+                    <td style={{ padding:'12px 14px', fontSize:'0.85rem' }}>
+                      <span style={{ fontWeight:600, color: f.usedCapacity >= f.capacity ? '#e53935' : '#1a1a2e' }}>
+                        {f.usedCapacity ?? 0}
+                      </span>
+                      <span style={{ color:'#aaa' }}>/{f.capacity}</span>
+                    </td>
+                    {/* Slot thực tế */}
+                    <td style={{ padding:'12px 14px' }}>
+                      {realTotal > 0
+                        ? <span style={badge('#2e7d32','#e8f5e9')}>{f.emptySlots}</span>
+                        : <span style={{ color:'#ccc' }}>—</span>}
+                    </td>
+                    <td style={{ padding:'12px 14px' }}>
+                      {realTotal > 0
+                        ? <span style={badge('#c62828','#fdecea')}>{f.occupiedSlots}</span>
+                        : <span style={{ color:'#ccc' }}>—</span>}
+                    </td>
+                    <td style={{ padding:'12px 14px' }}>
+                      {realTotal > 0
+                        ? <span style={badge('#e65100','#fff3e0')}>{f.maintenanceSlots}</span>
+                        : <span style={{ color:'#ccc' }}>—</span>}
+                    </td>
+                    {/* Progress bar: occupied / total real slots */}
                     <td style={{ padding:'12px 14px',minWidth:110 }}>
-                      <div style={{ background:'#f0f0f0',borderRadius:6,height:18,position:'relative',overflow:'hidden' }}>
-                        <div style={{ height:'100%',borderRadius:6,background: pct>=100?'#e53935':pct>=80?'#fb8c00':'#43a047',width:`${pct}%`,transition:'width 0.3s' }}/>
-                        <span style={{ position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',fontSize:'0.72rem',fontWeight:700,color:'#333' }}>{pct}%</span>
-                      </div>
+                      {realTotal > 0 ? (
+                        <div style={{ background:'#f0f0f0',borderRadius:6,height:18,position:'relative',overflow:'hidden' }}>
+                          <div style={{ height:'100%',borderRadius:6,background: realPct>=100?'#e53935':realPct>=80?'#fb8c00':'#43a047',width:`${realPct}%`,transition:'width 0.3s' }}/>
+                          <span style={{ position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',fontSize:'0.72rem',fontWeight:700,color:'#333' }}>{realPct}%</span>
+                        </div>
+                      ) : <span style={{ color:'#ccc', fontSize:'0.82rem' }}>chưa có slot</span>}
                     </td>
                     <td style={{ padding:'12px 14px' }}>
                       <div style={{ display:'flex',gap:6 }}>

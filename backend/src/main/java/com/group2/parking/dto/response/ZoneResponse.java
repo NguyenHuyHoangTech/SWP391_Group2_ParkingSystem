@@ -15,4 +15,10 @@ public class ZoneResponse {
     private Integer floorId;
     private String floorName;
     private String buildingName;
+
+    // Thống kê slot thực tế
+    private long totalSlots;
+    private long emptySlots;
+    private long occupiedSlots;
+    private long maintenanceSlots;
 }
