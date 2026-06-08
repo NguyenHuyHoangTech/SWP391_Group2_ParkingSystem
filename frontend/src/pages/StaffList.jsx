@@ -2,6 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import './StaffList.css';
 
 const API_URL = 'http://localhost:8080/api/staff';
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_PATTERN = /^\d{10,11}$/;
+const SQL_ERROR_PATTERN = /(sql|hibernate|constraint|duplicate key|stack trace|exception|violation of unique key)/i;
 
 function StaffList() {
   const [staffList, setStaffList] = useState([]);
@@ -78,21 +81,83 @@ function StaffList() {
     resetForm();
   };
 
+  const validateStaffForm = () => {
+    const username = formData.username.trim();
+    const password = formData.password.trim();
+    const email = formData.email.trim();
+    const phone = formData.phone.trim();
+    const role = formData.role.trim();
+    const buildingId = formData.buildingId.trim();
+
+    if (!username) {
+      return 'Username is required.';
+    }
+
+    if (!password) {
+      return 'Password is required.';
+    }
+
+    if (!email) {
+      return 'Email is required.';
+    }
+
+    if (!EMAIL_PATTERN.test(email)) {
+      return 'Invalid email format.';
+    }
+
+    if (!phone) {
+      return 'Phone is required.';
+    }
+
+    if (!PHONE_PATTERN.test(phone)) {
+      return 'Invalid phone number format.';
+    }
+
+    if (!['STAFF', 'MANAGER'].includes(role)) {
+      return 'Role must be STAFF or MANAGER.';
+    }
+
+    if (!buildingId) {
+      return 'Building ID is required.';
+    }
+
+    if (!Number.isInteger(Number(buildingId)) || Number(buildingId) < 1) {
+      return 'Building ID is required.';
+    }
+
+    return '';
+  };
+
+  const getFriendlyErrorMessage = (message) => {
+    if (!message || SQL_ERROR_PATTERN.test(message)) {
+      return 'Invalid staff account details.';
+    }
+
+    return message.length > 120 ? 'Invalid staff account details.' : message;
+  };
+
   const handleAddStaff = async (event) => {
     event.preventDefault();
-    setSubmitting(true);
     setFormError('');
     setStatusMessage('');
     setStatusError('');
 
+    const validationError = validateStaffForm();
+    if (validationError) {
+      setFormError(validationError);
+      return;
+    }
+
+    setSubmitting(true);
+
     try {
       const payload = {
         username: formData.username.trim(),
-        password: formData.password,
-        email: formData.email.trim() || null,
-        phone: formData.phone.trim() || null,
+        password: formData.password.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
         role: formData.role,
-        buildingId: formData.buildingId === '' ? null : Number(formData.buildingId),
+        buildingId: Number(formData.buildingId),
       };
 
       const response = await fetch(API_URL, {
@@ -108,7 +173,7 @@ function StaffList() {
 
         try {
           const errorData = await response.json();
-          message = errorData.message || message;
+          message = getFriendlyErrorMessage(errorData.message || message);
         } catch {
           if (response.status === 400) {
             message = 'Please check the staff account details.';
@@ -181,6 +246,13 @@ function StaffList() {
       default: return '';
     }
   };
+
+  const isAddSubmitDisabled = submitting
+    || !formData.username.trim()
+    || !formData.password.trim()
+    || !formData.email.trim()
+    || !formData.phone.trim()
+    || !formData.buildingId.trim();
 
   if (loading) {
     return (
@@ -331,6 +403,7 @@ function StaffList() {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
+                  required
                 />
               </label>
 
@@ -341,12 +414,15 @@ function StaffList() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
+                  required
+                  inputMode="numeric"
+                  pattern="[0-9]{10,11}"
                 />
               </label>
 
               <label>
                 Role
-                <select name="role" value={formData.role} onChange={handleInputChange}>
+                <select name="role" value={formData.role} onChange={handleInputChange} required>
                   <option value="STAFF">STAFF</option>
                   <option value="MANAGER">MANAGER</option>
                 </select>
@@ -360,6 +436,7 @@ function StaffList() {
                   value={formData.buildingId}
                   onChange={handleInputChange}
                   min="1"
+                  required
                 />
               </label>
 
@@ -367,7 +444,7 @@ function StaffList() {
                 <button type="button" className="cancel-btn" onClick={closeAddModal} disabled={submitting}>
                   Cancel
                 </button>
-                <button type="submit" className="submit-btn" disabled={submitting}>
+                <button type="submit" className="submit-btn" disabled={isAddSubmitDisabled}>
                   {submitting ? 'Creating...' : 'Create Staff'}
                 </button>
               </div>

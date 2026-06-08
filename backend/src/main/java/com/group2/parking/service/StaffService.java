@@ -5,11 +5,13 @@ import com.group2.parking.dto.StaffResponse;
 import com.group2.parking.dto.StaffStatusUpdateRequest;
 import com.group2.parking.entity.Account;
 import com.group2.parking.repository.AccountRepository;
+import com.group2.parking.repository.ParkingBuildingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -18,8 +20,11 @@ public class StaffService {
     private static final String ACTIVE_STATUS = "ACTIVE";
     private static final Set<String> ALLOWED_ROLES = Set.of("STAFF", "MANAGER");
     private static final Set<String> ALLOWED_STATUSES = Set.of("ACTIVE", "INACTIVE");
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+    private static final Pattern PHONE_PATTERN = Pattern.compile("^\\d{10,11}$");
 
     private final AccountRepository accountRepository;
+    private final ParkingBuildingRepository parkingBuildingRepository;
 
     public List<StaffResponse> getAllStaff() {
         List<Account> accounts = accountRepository.findByRoleIn(List.of("STAFF", "MANAGER"));
@@ -55,6 +60,8 @@ public class StaffService {
                 .password(password)
                 .email(email)
                 .phone(phone)
+                .email(email)
+                .phone(phone)
                 .role(role)
                 .buildingId(request.getBuildingId())
                 .status(ACTIVE_STATUS)
@@ -87,8 +94,32 @@ public class StaffService {
             throw new IllegalArgumentException("Password is required.");
         }
 
+        if (isBlank(request.getEmail())) {
+            throw new IllegalArgumentException("Email is required.");
+        }
+
+        if (!EMAIL_PATTERN.matcher(request.getEmail().trim()).matches()) {
+            throw new IllegalArgumentException("Invalid email format.");
+        }
+
+        if (isBlank(request.getPhone())) {
+            throw new IllegalArgumentException("Phone is required.");
+        }
+
+        if (!PHONE_PATTERN.matcher(request.getPhone().trim()).matches()) {
+            throw new IllegalArgumentException("Invalid phone number format.");
+        }
+
         if (isBlank(request.getRole()) || !ALLOWED_ROLES.contains(request.getRole().trim())) {
             throw new IllegalArgumentException("Role must be STAFF or MANAGER.");
+        }
+
+        if (request.getBuildingId() == null) {
+            throw new IllegalArgumentException("Building ID is required.");
+        }
+
+        if (!parkingBuildingRepository.existsById(request.getBuildingId())) {
+            throw new IllegalArgumentException("Building does not exist.");
         }
     }
 
@@ -104,14 +135,6 @@ public class StaffService {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
-    }
-
-    private String normalizeOptional(String value) {
-        if (value == null || value.trim().isEmpty()) {
-            return null;
-        }
-
-        return value.trim();
     }
 
     private StaffResponse toStaffResponse(Account account) {
