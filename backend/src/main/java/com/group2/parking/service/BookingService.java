@@ -37,7 +37,6 @@ public class BookingService {
             throw new RuntimeException("Start time must be in the future");
         }
 
-
         //3. KHÔNG CHO TRÙNG BIỂN SỐ
         bookingRepository
                 .findFirstByLicensePlateAndStatusOrderByCreatedAtDesc(

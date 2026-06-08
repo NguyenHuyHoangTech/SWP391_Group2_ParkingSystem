@@ -9,4 +9,5 @@ public interface PricingBlockRepository extends JpaRepository<PricingBlock, Inte
 
     //LẤY CÁC BLOCK GIÁ THUỘC 1 POLICY VÀ SORT THEO BLOCK_ORDER
     List<PricingBlock> findByPricingPolicy_IdOrderByBlockOrderAsc(Integer policyId);
+
 }

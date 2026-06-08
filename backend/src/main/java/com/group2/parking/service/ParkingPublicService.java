@@ -16,8 +16,7 @@ public class ParkingPublicService {
 
     private final ParkingBuildingRepository parkingBuildingRepo;
 
-    //UC-404: XEM DANH SÁCH CÁC BÃI XE ĐANG MỞ
-    //KO THẤY BÃI CLOSED TRONG DANH SÁCH
+    //UC-404: XEM DANH SÁCH CÁC BÃI XE ĐANG MỞ (KO THẤY BÃI CLOSED TRONG DANH SÁCH)
     public List<BuildingResponse> getOpenBuildings() {
         return parkingBuildingRepo.findByStatus("OPEN")
                 .stream()
