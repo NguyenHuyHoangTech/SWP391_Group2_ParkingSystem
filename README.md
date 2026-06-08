@@ -1,8 +1,4 @@
 # parking-system
 
-Monorepo for Parking Building Management System (Spring Boot \& React)
-
-
-
-This is test for jira
+Monorepo for Parking Building Management System (Spring Boot \& React) 
 

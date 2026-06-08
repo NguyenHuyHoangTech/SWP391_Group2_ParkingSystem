@@ -14,16 +14,15 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/staff")
-@CrossOrigin(origins = "*")
-@RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class StaffController {
 
-    private final StaffService staffService;
+    @Autowired
+    private AccountService accountService;
 
     @GetMapping
-    public ResponseEntity<List<StaffResponse>> getAllStaff() {
-        List<StaffResponse> staffList = staffService.getAllStaff();
-        return ResponseEntity.ok(staffList);
+    public List<Account> getStaffList() {
+        return accountService.getAllStaffAndManagers();
     }
 
     @PostMapping
@@ -41,8 +40,7 @@ public class StaffController {
     @PutMapping("/{id}/status")
     public ResponseEntity<?> updateStaffStatus(
             @PathVariable Integer id,
-            @RequestBody StaffStatusUpdateRequest request
-    ) {
+            @RequestBody StaffStatusUpdateRequest request) {
         try {
             StaffResponse updatedStaff = staffService.updateStaffStatus(id, request);
             return ResponseEntity.ok(updatedStaff);
