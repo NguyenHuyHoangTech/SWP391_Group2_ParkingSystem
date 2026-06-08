@@ -61,6 +61,11 @@ function ZoneListPage() {
 
   const handleDelete = async (zone) => {
     const slotCount = zone.totalSlots || 0;
+    const occupiedCount = zone.occupiedSlots || 0;
+    if (occupiedCount > 0) {
+      alert(`Không thể xóa khu vực "${zone.name}" vì đang có ${occupiedCount} xe đang đỗ!\nHãy cho xe ra trước.`);
+      return;
+    }
     const msg = slotCount > 0
       ? `Xóa khu vực "${zone.name}"?\n⚠️ Khu vực này có ${slotCount} ô đỗ — tất cả sẽ bị xóa theo!`
       : `Xóa khu vực "${zone.name}"?`;

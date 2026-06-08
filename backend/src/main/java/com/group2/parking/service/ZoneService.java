@@ -132,13 +132,22 @@ public class ZoneService {
 
     // Xóa khu vực đỗ xe theo id (cascade: xóa toàn bộ ô đỗ bên trong trước)
     /* Tìm zone theo id — ném lỗi 404 nếu không tồn tại
+       Kiểm tra số ô đỗ đang có xe (OCCUPIED) trong zone
+       Nếu có xe → ném lỗi 400 (không thể xóa zone khi còn xe đang đỗ)
        Xóa toàn bộ ô đỗ (slot) thuộc zone này trước (cascade)
        Xóa zone khỏi database */
     public void deleteZone(Integer id) {
         ParkingZone zone = zoneRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND,
                         "Không tìm thấy khu vực với id: " + id));
-        // Cascade: xóa tất cả ô đỗ trong zone trước
+        // Không cho xóa nếu còn xe đang đỗ
+        long occupiedCount = slotRepository.countByZoneIdAndStatus(id, "OCCUPIED");
+        if (occupiedCount > 0) {
+            throw new AppException(HttpStatus.BAD_REQUEST,
+                    "Không thể xóa khu vực \"" + zone.getName()
+                            + "\" vì đang có " + occupiedCount + " xe đang đỗ!");
+        }
+        // Cascade: xóa tất cả ô đỗ trong zone trước, rồi xóa zone
         slotRepository.deleteByZoneId(id);
         zoneRepository.delete(zone);
     }

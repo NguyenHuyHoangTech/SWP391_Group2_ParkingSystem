@@ -213,22 +213,35 @@ public class SlotService {
     }
 
     // Xóa một ô đỗ xe theo id
-    /* Kiểm tra slot có tồn tại theo id không — ném lỗi 404 nếu không có
+    /* Tìm slot theo id — ném lỗi 404 nếu không tồn tại
+       Nếu slot đang OCCUPIED (có xe) → ném lỗi 400 (không được phép xóa khi có xe)
        Xóa slot khỏi database */
     public void deleteSlot(Integer id) {
-        if (!slotRepository.existsById(id)) {
-            throw new AppException(HttpStatus.NOT_FOUND, "Không tìm thấy ô đỗ với id: " + id);
+        Slot slot = slotRepository.findById(id)
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND,
+                        "Không tìm thấy ô đỗ với id: " + id));
+        if ("OCCUPIED".equals(slot.getStatus())) {
+            throw new AppException(HttpStatus.BAD_REQUEST,
+                    "Không thể xóa ô \"" + slot.getName() + "\" vì hiện có xe đang đỗ!");
         }
         slotRepository.deleteById(id);
     }
 
     // Xóa nhiều ô đỗ cùng lúc theo danh sách id
-    /* Truy vấn các slot thực sự tồn tại trong danh sách id được truyền vào
-       Xóa tất cả slot tìm được
-       Trả về số lượng ô đã xóa thực tế */
+    /* Truy vấn danh sách slot thực sự tồn tại trong danh sách id
+       Kiểm tra nếu có bất kỳ slot nào đang OCCUPIED → ném lỗi 400 kèm danh sách tên
+       Xóa tất cả slot hợp lệ và trả về số lượng đã xóa */
     public int bulkDeleteSlots(List<Integer> ids) {
-        List<Integer> existing = slotRepository.findAllById(ids)
-                .stream().map(Slot::getId).collect(Collectors.toList());
+        List<Slot> slots = slotRepository.findAllById(ids);
+        List<String> occupiedNames = slots.stream()
+                .filter(s -> "OCCUPIED".equals(s.getStatus()))
+                .map(Slot::getName)
+                .collect(Collectors.toList());
+        if (!occupiedNames.isEmpty()) {
+            throw new AppException(HttpStatus.BAD_REQUEST,
+                    "Không thể xóa vì các ô sau đang có xe: " + String.join(", ", occupiedNames));
+        }
+        List<Integer> existing = slots.stream().map(Slot::getId).collect(Collectors.toList());
         slotRepository.deleteAllById(existing);
         return existing.size();
     }
