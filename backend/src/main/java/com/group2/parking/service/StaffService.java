@@ -60,8 +60,6 @@ public class StaffService {
                 .password(password)
                 .email(email)
                 .phone(phone)
-                .email(email)
-                .phone(phone)
                 .role(role)
                 .buildingId(request.getBuildingId())
                 .status(ACTIVE_STATUS)
@@ -135,6 +133,10 @@ public class StaffService {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private String normalizeOptional(String value) {
+        return isBlank(value) ? null : value.trim();
     }
 
     private StaffResponse toStaffResponse(Account account) {
