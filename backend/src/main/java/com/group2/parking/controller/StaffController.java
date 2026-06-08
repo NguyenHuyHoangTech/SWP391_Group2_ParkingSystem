@@ -1,10 +1,8 @@
 package com.group2.parking.controller;
 
-import com.group2.parking.dto.StaffCreateRequest;
-import com.group2.parking.dto.StaffResponse;
-import com.group2.parking.dto.StaffStatusUpdateRequest;
-import com.group2.parking.service.StaffService;
-import lombok.RequiredArgsConstructor;
+import com.group2.parking.entity.Account;
+import com.group2.parking.service.AccountService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +24,9 @@ public class StaffController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createStaff(@RequestBody StaffCreateRequest request) {
+    public ResponseEntity<?> createStaff(@RequestBody Account account) {
         try {
-            StaffResponse createdStaff = staffService.createStaff(request);
+            Account createdStaff = accountService.createStaff(account);
             return ResponseEntity.ok(createdStaff);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
@@ -40,11 +38,15 @@ public class StaffController {
     @PutMapping("/{id}/status")
     public ResponseEntity<?> updateStaffStatus(
             @PathVariable Integer id,
-            @RequestBody StaffStatusUpdateRequest request) {
+            @RequestBody Map<String, String> request) {
         try {
-            StaffResponse updatedStaff = staffService.updateStaffStatus(id, request);
+            String status = request.get("status");
+            if (status == null || status.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Status is required."));
+            }
+            Account updatedStaff = accountService.updateStatus(id, status.trim());
             return ResponseEntity.ok(updatedStaff);
-        } catch (IllegalArgumentException ex) {
+        } catch (RuntimeException ex) {
             return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
         }
     }
