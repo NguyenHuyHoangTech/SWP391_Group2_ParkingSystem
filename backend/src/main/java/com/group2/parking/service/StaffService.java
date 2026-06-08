@@ -34,17 +34,27 @@ public class StaffService {
 
         String username = request.getUsername().trim();
         String password = request.getPassword().trim();
+        String email = normalizeOptional(request.getEmail());
+        String phone = normalizeOptional(request.getPhone());
         String role = request.getRole().trim();
 
         if (accountRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException("Username already exists.");
+            throw new IllegalArgumentException("Username already exists");
+        }
+
+        if (email != null && accountRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+
+        if (phone != null && accountRepository.existsByPhone(phone)) {
+            throw new IllegalArgumentException("Phone number already exists");
         }
 
         Account account = Account.builder()
                 .username(username)
                 .password(password)
-                .email(normalizeOptional(request.getEmail()))
-                .phone(normalizeOptional(request.getPhone()))
+                .email(email)
+                .phone(phone)
                 .role(role)
                 .buildingId(request.getBuildingId())
                 .status(ACTIVE_STATUS)
