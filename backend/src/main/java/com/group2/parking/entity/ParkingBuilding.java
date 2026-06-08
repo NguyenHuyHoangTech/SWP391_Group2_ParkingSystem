@@ -22,7 +22,6 @@ public class ParkingBuilding {
     @Column(name = "address", length = 500)
     private String address;
 
-    //OPEN / CLOSED
-    @Column(name = "status", nullable = false, length = 50)
+    @Column(name = "status", length = 50)
     private String status;
 }
