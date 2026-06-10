@@ -15,34 +15,47 @@ public class PricingPolicyRepository {
     @PersistenceContext
     private EntityManager entityManager;
 
-// lấy danh sách
-    public List<PricingPolicy> getList(){
+    // lấy danh sách
+    public List<PricingPolicy> getList() {
         String sql = "SELECT p FROM PricingPolicy p";
 
-       return entityManager.createQuery(sql, PricingPolicy.class).getResultList();
+        return entityManager.createQuery(sql, PricingPolicy.class).getResultList();
 
     }
 
     // dùng lưu dữ liệu
-    public PricingPolicy getPolicies(PricingPolicy policy){
-        if(policy.getId() == null){
+    public PricingPolicy getPolicies(PricingPolicy policy) {
+        if (policy.getId() == null) {
             // insert
             entityManager.persist(policy);
             return policy;
-        }else{
-          return entityManager.merge(policy);
+        } else {
+            return entityManager.merge(policy);
         }
     }
-// hàm tìm ID
-    public PricingPolicy findId(Integer id){
+
+    // hàm tìm ID
+    public PricingPolicy findId(Integer id) {
         // Nó tự động tạo lệnh SELECT * FROM PricingPolicy WHERE id = ? tìm kiếm ID
         return entityManager.find(PricingPolicy.class, id);
     }
 
-    public void deleteById(Integer id){
+    public void deleteById(Integer id) {
         PricingPolicy policy = entityManager.find(PricingPolicy.class, id);
-        if(id != null){
-          entityManager.remove(policy);
+        if (id != null) {
+            entityManager.remove(policy);
         }
+    }
+
+    // lấy chính sách Active dựa vào ID của loại xe
+    public PricingPolicy findActiveVehicleById(Integer vehicleTypeId) {
+        String hql = "Select p from PricingPolicy p where p.vehicleType.id = :vId and p.status = 'ACTIVE'";
+        List<PricingPolicy> results = entityManager.createQuery(hql, PricingPolicy.class).setParameter("vId", vehicleTypeId).getResultList();
+        if (results.isEmpty()) {   // lấy chính sách giá đag Active dựa vào ID của loại xe
+            return null;
+        }
+        return results.get(0);   // lấy chính sách đầu tiên tìm đc
+
+
     }
 }
