@@ -10,11 +10,19 @@ public class FloorResponse {
     private Integer id;
     private String name;
     private Integer floorLevel;
-    private Integer capacity;
+    private Integer capacity;          // sức chứa tối đa của tầng
     private Integer buildingId;
     private String buildingName;
     private Integer vehicleTypeId;
     private String vehicleTypeName;
-    private Integer usedCapacity;
-    private Integer remainingCapacity;
+
+    // Cũ: tổng capacity đã chia cho zone (giờ đổi tên cho rõ nghĩa)
+    private Integer usedCapacity;       // = zoneAllocatedCapacity (giữ để không break)
+    private Integer remainingCapacity;  // = capacity - usedCapacity
+
+    // Thống kê slot thực tế
+    private long totalSlots;
+    private long emptySlots;
+    private long occupiedSlots;
+    private long maintenanceSlots;
 }

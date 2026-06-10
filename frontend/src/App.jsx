@@ -4,6 +4,7 @@ import PricingPolicy from './pages/PricingPolicy';
 import CustomerBooking from './pages/CustomerBooking';
 import FloorListPage from './pages/Floors/FloorListPage';
 import ZoneListPage from './pages/Zones/ZoneListPage';
+import SlotListPage from './pages/Slots/SlotListPage';
 import './App.css';
 
 localStorage.setItem('userRole', 'ADMIN');
@@ -11,6 +12,7 @@ localStorage.setItem('userRole', 'ADMIN');
 const NAV_ITEMS = [
   { key: 'floors',   label: '🏢 Quản lý Tầng' },
   { key: 'zones',    label: '🅿️ Quản lý Khu vực' },
+  { key: 'slots',    label: '🔲 Ô đỗ xe' },
   { key: 'staff',    label: '👤 Nhân viên' },
   { key: 'pricing',  label: '💰 Chính sách giá' },
   { key: 'booking',  label: '📋 Đặt chỗ' },
@@ -23,6 +25,7 @@ function App() {
     switch (currentScreen) {
       case 'floors':   return <FloorListPage />;
       case 'zones':    return <ZoneListPage />;
+      case 'slots':    return <SlotListPage />;
       case 'staff':    return <StaffList />;
       case 'pricing':  return <PricingPolicy />;
       case 'booking':  return <CustomerBooking />;

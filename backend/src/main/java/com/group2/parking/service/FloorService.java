@@ -1,3 +1,7 @@
+/* Lớp Service chứa toàn bộ logic nghiệp vụ quản lý tầng (Floor).
+   Xử lý các nghiệp vụ: tạo, cập nhật, xóa tầng kèm kiểm tra sức chứa,
+   và tổng hợp thống kê số lượng ô đỗ theo trạng thái cho mỗi tầng. */
+
 package com.group2.parking.service;
 
 import com.group2.parking.dto.request.FloorRequest;
@@ -20,13 +24,22 @@ public class FloorService {
     private final ParkingBuildingRepository buildingRepository;
     private final ParkingZoneRepository zoneRepository;
     private final VehicleTypeJpaRepository vehicleTypeRepository;
+    private final SlotRepository slotRepository;
 
+    // Lấy toàn bộ danh sách tầng kèm thống kê
+    /* Truy vấn tất cả tầng trong database
+       Chuyển đổi từng Floor thành FloorResponse (kèm thống kê slot)
+       Trả về danh sách kết quả */
     public List<FloorResponse> getAllFloors() {
         return floorRepository.findAll().stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
+    // Lấy thông tin một tầng theo id
+    /* Tìm tầng theo id trong database
+       Nếu không tồn tại → ném ngoại lệ 404 Not Found
+       Chuyển đổi thành FloorResponse và trả về */
     public FloorResponse getFloorById(Integer id) {
         Floor floor = floorRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND,
@@ -34,6 +47,11 @@ public class FloorService {
         return toResponse(floor);
     }
 
+    // Tạo mới một tầng
+    /* Tìm tòa nhà theo buildingId — ném lỗi 404 nếu không có
+       Tìm loại xe theo vehicleTypeId — ném lỗi 404 nếu không có
+       Tạo đối tượng Floor mới với các thông tin từ request
+       Lưu vào database và trả về FloorResponse */
     public FloorResponse createFloor(FloorRequest req) {
         ParkingBuilding building = buildingRepository.findById(req.getBuildingId())
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND,
@@ -53,6 +71,13 @@ public class FloorService {
         return toResponse(floorRepository.save(floor));
     }
 
+    // Cập nhật thông tin một tầng
+    /* Tìm tầng theo id — ném lỗi 404 nếu không tồn tại
+       Tìm tòa nhà và loại xe mới — ném lỗi 404 nếu không tồn tại
+       Tính tổng sức chứa đã dùng bởi các zone hiện tại trên tầng này
+       Nếu sức chứa mới < sức chứa đã dùng → ném lỗi 400 (không thể thu hẹp)
+       Cập nhật các trường và lưu lại
+       Trả về FloorResponse đã cập nhật */
     public FloorResponse updateFloor(Integer id, FloorRequest req) {
         Floor floor = floorRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND,
@@ -82,6 +107,11 @@ public class FloorService {
         return toResponse(floorRepository.save(floor));
     }
 
+    // Xóa một tầng theo id
+    /* Tìm tầng theo id — ném lỗi 404 nếu không tồn tại
+       Kiểm tra xem tầng còn khu vực (zone) nào không
+       Nếu còn zone → ném lỗi 400 yêu cầu xóa zone trước
+       Nếu không còn zone → xóa tầng khỏi database */
     public void deleteFloor(Integer id) {
         Floor floor = floorRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND,
@@ -93,9 +123,20 @@ public class FloorService {
         floorRepository.delete(floor);
     }
 
+    // Chuyển đổi entity Floor thành FloorResponse kèm thống kê slot thực tế
+    /* Tính tổng sức chứa đã phân bổ cho các zone trong tầng (usedCapacity)
+       Đếm tổng slot, slot trống, slot có xe, slot bảo trì theo floorId
+       Xây dựng FloorResponse với đầy đủ thông tin và trả về */
     private FloorResponse toResponse(Floor floor) {
         int usedCapacity = zoneRepository.findByFloorId(floor.getId()).stream()
                 .mapToInt(ParkingZone::getCapacity).sum();
+
+        Integer floorId = floor.getId();
+        long totalSlots    = slotRepository.countByFloorId(floorId);
+        long emptySlots    = slotRepository.countByFloorIdAndStatus(floorId, "EMPTY");
+        long occupiedSlots = slotRepository.countByFloorIdAndStatus(floorId, "OCCUPIED");
+        long maintSlots    = slotRepository.countByFloorIdAndStatus(floorId, "MAINTENANCE");
+
         return FloorResponse.builder()
                 .id(floor.getId())
                 .name(floor.getName())
@@ -107,6 +148,10 @@ public class FloorService {
                 .vehicleTypeName(floor.getVehicleType() != null ? floor.getVehicleType().getName() : null)
                 .usedCapacity(usedCapacity)
                 .remainingCapacity(floor.getCapacity() - usedCapacity)
+                .totalSlots(totalSlots)
+                .emptySlots(emptySlots)
+                .occupiedSlots(occupiedSlots)
+                .maintenanceSlots(maintSlots)
                 .build();
     }
 }
