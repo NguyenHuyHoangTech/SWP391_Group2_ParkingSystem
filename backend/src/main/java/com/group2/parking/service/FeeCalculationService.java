@@ -1,6 +1,6 @@
 package com.group2.parking.service;
 
-import com.group2.parking.dto.FeeEstimateResponse;
+import com.group2.parking.dto.response.FeeEstimateResponse;
 import com.group2.parking.entity.ParkingSession;
 import com.group2.parking.entity.PricingBlock;
 import com.group2.parking.entity.PricingPolicy;

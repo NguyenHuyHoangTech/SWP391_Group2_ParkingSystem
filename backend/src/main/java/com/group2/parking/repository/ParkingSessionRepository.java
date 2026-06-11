@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface ParkingSessionRepository extends JpaRepository<ParkingSession, Integer> {
 
-    //Đếm xe đang gửi thật trong bãi
+    //ĐẾM XE ĐANG GỬI THẬT TRONG BÃI
     long countByBuildingIdAndVehicleTypeIdAndStatus(
             Integer buildingId,
             Integer vehicleTypeId,

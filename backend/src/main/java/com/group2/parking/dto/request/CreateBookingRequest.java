@@ -7,6 +7,6 @@ public record CreateBookingRequest(
         Integer buildingId,
         Integer vehicleTypeId,
         String licensePlate,
-        LocalDateTime startTime,
-        LocalDateTime endTime
+        LocalDateTime expectedCheckinTime,
+        LocalDateTime holdUntil
 ) {}

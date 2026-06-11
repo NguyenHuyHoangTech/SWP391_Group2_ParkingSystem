@@ -1,11 +1,10 @@
 package com.group2.parking.controller;
 
+import com.group2.parking.dto.response.FeeEstimateResponse;
 import com.group2.parking.dto.response.PricingResponse;
 import com.group2.parking.service.PricingService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,5 +19,11 @@ public class PublicPricingController {
     @GetMapping("/pricing")
     public List<PricingResponse> getPublicPricing() {
         return pricingService.getPublicPricing();
+    }
+
+    //UC-406: TRA CỨU PHÍ
+    @GetMapping("/fee-estimate")
+    public FeeEstimateResponse getFeeEstimate(@RequestParam String licensePlate) {
+        return pricingService.estimateFeeByLicensePlate(licensePlate);
     }
 }

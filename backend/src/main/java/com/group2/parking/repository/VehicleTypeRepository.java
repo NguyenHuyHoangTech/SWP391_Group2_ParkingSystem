@@ -7,10 +7,12 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class VehicleTypeRepository {
+
     @PersistenceContext
     private EntityManager entityManager;
 
     public VehicleType findById(Integer id){
+
         return entityManager.find(VehicleType.class, id);
     }
 }
