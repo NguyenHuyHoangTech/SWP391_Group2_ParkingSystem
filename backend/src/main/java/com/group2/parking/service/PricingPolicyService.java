@@ -10,4 +10,5 @@ public interface PricingPolicyService {
     PricingPolicy createPolicy(PricingPolicyDTO policyDTO);
     PricingPolicy getPricingPolicies(Integer id);
     void deletePolicies(Integer id);
+    PricingPolicy updatePolicy(Integer id, PricingPolicyDTO dto);
 }

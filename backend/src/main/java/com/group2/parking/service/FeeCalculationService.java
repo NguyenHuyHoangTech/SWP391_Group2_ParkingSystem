@@ -61,7 +61,7 @@ public class FeeCalculationService {
         for(int i = 0; i < blocks.size(); i++){
             PricingBlock block = blocks.get(i);
             if(soGioConLai <= 0 ) break;
-//            totalFee = totalFee + block.getPrice();
+            totalFee = totalFee + block.getPrice();
             soGioConLai = soGioConLai - block.getDurationHours();
         }
 
@@ -74,7 +74,7 @@ public class FeeCalculationService {
             if(gioDu > 0) {
                 soBlockDungThem = soBlockDungThem + 1;
             }
-//            totalFee = totalFee + (soBlockDungThem * lastBlock.getPrice());
+            totalFee = totalFee + (soBlockDungThem * lastBlock.getPrice());
         }
 
         // 5 Phí phụ qua đêm
