@@ -5,6 +5,7 @@ import com.group2.parking.dto.request.CreateBookingRequest;
 import com.group2.parking.entity.Booking;
 import com.group2.parking.repository.BookingRepository;
 import com.group2.parking.repository.ParkingSessionRepository;
+import com.group2.parking.repository.ParkingZoneRepository;
 import com.group2.parking.repository.SlotRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final ParkingSessionRepository parkingSessionRepository;
+    private final ParkingZoneRepository  parkingZoneRepository;
     private final SlotRepository slotRepository;
 
     // UC-401: TẠO BOOKING
@@ -28,38 +30,39 @@ public class BookingService {
         LocalDateTime now = LocalDateTime.now();
 
         //1. CHECK THỜI GIAN HỢP LỆ (END > START)
-        if (!request.endTime().isAfter(request.startTime())) {
-            throw new RuntimeException("End time must be after start time");
+        if (request.expectedCheckinTime() == null || request.holdUntil() == null) {
+            throw new RuntimeException("Vui lòng chọn thời gian dự kiến đến bãi và thời gian hết hạn giữ chỗ.");
         }
 
         //2. KHÔNG CHO BOOKING TRONG QUÁ KHỨ
-        if (request.startTime().isBefore(now)) {
-            throw new RuntimeException("Start time must be in the future");
+        if (request.holdUntil().isBefore(request.expectedCheckinTime())) {
+            throw new RuntimeException("Thời gian hết hạn giữ chỗ phải sau thời gian dự kiến đến bãi.");
+        }
+
+        if (request.expectedCheckinTime().isBefore(now)) {
+            throw new RuntimeException("Thời gian dự kiến đến bãi không được nằm trong quá khứ.");
         }
 
         //3. KHÔNG CHO TRÙNG BIỂN SỐ
-        bookingRepository
-                .findFirstByLicensePlateAndStatusOrderByCreatedAtDesc(
+        bookingRepository.findFirstByLicensePlateAndStatusOrderByCreatedAtDesc(
                         request.licensePlate(),
-                        "CONFIRMED"
-                )
+                        "CONFIRMED")
                 .ifPresent(existing -> {
                     throw new RuntimeException(
                             "This license plate already has a confirmed booking"
                     );
                 });
 
-        //4. ĐẾM BOOKING ACTIVE
-        long activeBookings =
-                bookingRepository.countByBuildingIdAndVehicleTypeIdAndStatusInAndEndTimeAfter(
-                request.buildingId(),
-                request.vehicleTypeId(),
-                List.of("CONFIRMED"),
-                now
-        );
+        //4. ĐẾM BOOKING CONFIRMED GIAO NHAU VỚI KHOẢNG THỜI GIAN
+        long overlappingBookings = bookingRepository.countByBuildingIdAndVehicleTypeIdAndStatusAndCheckedInAtIsNullAndExpectedCheckinTimeLessThanAndHoldUntilGreaterThan(
+                                request.buildingId(),
+                                request.vehicleTypeId(),
+                                "CONFIRMED",
+                                request.holdUntil(),
+                                request.expectedCheckinTime());
 
-        //5. DẾM TỔNG SLOT DÙNG ĐƯỢC
-        long totalSlots = slotRepository.countUsableSlots(
+        //5. TỔNG SỨC CHỨA
+        long totalSlots = parkingZoneRepository.sumCapacity(
                 request.buildingId(),
                 request.vehicleTypeId()
         );
@@ -72,19 +75,22 @@ public class BookingService {
                         "ACTIVE"
                 );
 
-        //7. Check còn chỗ không
-        if (totalSlots - activeSessions - activeBookings <= 0) {
-            throw new RuntimeException("Parking is full");
-        }
+        //7. CHECK CÒN CHỖ TRONG THỜI GIAN KHÁCH YÊU CẦU
+        long availableSlots = Math.max(0, totalSlots - activeSessions -  overlappingBookings);
 
+        if (availableSlots <= 0) {
+            throw new RuntimeException("Parking is full for the requested time");
+        }
         //8. TẠO BOOKING
         Booking booking = Booking.builder()
                 .accountId(request.accountId())
                 .buildingId(request.buildingId())
                 .vehicleTypeId(request.vehicleTypeId())
                 .licensePlate(request.licensePlate())
-                .startTime(request.startTime())
-                .endTime(request.endTime())
+                .bookingType("SHORT_TERM")
+                .expectedCheckinTime(request.expectedCheckinTime())
+                .holdUntil(request.holdUntil())
+                .checkedInAt(null)
                 .status("CONFIRMED")
                 .createdAt(now)
                 .build();
@@ -93,18 +99,26 @@ public class BookingService {
         return toBookingResponse(bookingRepository.save(booking));
     }
 
-    // UC-402: hủy booking quá hạn, sau này gắn scheduler gọi hàm này
+    /*
+     --- UC-402: HỦY BOOKING QUÁ HẠN ---
+     --- KHÁCH ĐƯỢC PHÉP ĐẾN TRỄ TỐI ĐA 15P ---
+     */
+
     @Transactional
     public void expireOverdueBookings() {
-        LocalDateTime expiredBefore = LocalDateTime.now().minusMinutes(15);
+        LocalDateTime now = LocalDateTime.now();
 
         List<Booking> bookings =
-                bookingRepository.findByStatusAndStartTimeBefore("CONFIRMED", expiredBefore);
+                bookingRepository.findByStatusAndCheckedInAtIsNullAndHoldUntilBefore(
+                        "CONFIRMED",
+                        now);
 
         for (Booking booking : bookings) {
             booking.setStatus("EXPIRED");
-            booking.setExpiredAt(LocalDateTime.now());
+            booking.setExpiredAt(now);
         }
+
+        bookingRepository.saveAll(bookings);
     }
 
     private BookingResponse toBookingResponse(Booking booking) {
@@ -114,8 +128,11 @@ public class BookingService {
                 booking.getBuildingId(),
                 booking.getVehicleTypeId(),
                 booking.getLicensePlate(),
-                booking.getStartTime(),
-                booking.getEndTime(),
+                booking.getBookingType(),
+                booking.getExpectedCheckinTime(),
+                booking.getHoldUntil(),
+                booking.getCheckedInAt(),
+                booking.getCreatedAt(),
                 booking.getStatus()
         );
     }

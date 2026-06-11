@@ -8,7 +8,10 @@ public record BookingResponse(
         Integer buildingId,
         Integer vehicleTypeId,
         String licensePlate,
-        LocalDateTime startTime,
-        LocalDateTime endTime,
+        String bookingType,
+        LocalDateTime expectedCheckinTime,
+        LocalDateTime holdUntil,
+        LocalDateTime checkedInAt,
+        LocalDateTime createdAt,
         String status
 ) {}

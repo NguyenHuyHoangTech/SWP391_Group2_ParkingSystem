@@ -1,12 +1,10 @@
 package com.group2.parking.controller;
 
 import com.group2.parking.dto.response.BuildingResponse;
+import com.group2.parking.dto.response.CapacityResponse;
 import com.group2.parking.service.ParkingPublicService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -17,8 +15,19 @@ public class PublicParkingController {
 
     private final ParkingPublicService parkingPublicService;
 
-    //UC-404 PULIC XEM DANH SÁCH BÃI XE ĐANG OPEN
-    // GET /api/public/buildings
+    /*
+    --- UC-403: XEM SỨC CHỨA HIỆN TẠI CỦA BÃI XE ---
+     */
+    @GetMapping("/buildings/{buildingId}/capacity")
+    public CapacityResponse getLiveCapacity(
+            @PathVariable Integer buildingId,
+            @RequestParam Integer vehicleTypeId) {
+        return parkingPublicService.getLiveCapacity(buildingId, vehicleTypeId);
+    }
+
+    /*
+    --- UC-404 PULIC XEM DANH SÁCH BÃI XE ĐANG OPEN ---
+     */
     @GetMapping("/buildings")
     public List<BuildingResponse> getOpenBuildings() {
         return parkingPublicService.getOpenBuildings();

@@ -9,7 +9,7 @@ public interface SlotRepository extends JpaRepository<Slot, Integer> {
 
     boolean existsByZoneId(Integer zoneId);
 
-    // Đếm tổng slot dùng được theo bãi xe + loại xe
+    // ĐẾM TỔNG SLOT DÙNG ĐƯỢC THEO BÃI XE VÀ LOẠI XE
     @Query(value = """
         SELECT COUNT(s.id)
         FROM Slot s

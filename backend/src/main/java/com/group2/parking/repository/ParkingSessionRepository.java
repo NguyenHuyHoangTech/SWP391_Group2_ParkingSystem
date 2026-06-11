@@ -14,6 +14,9 @@ public interface ParkingSessionRepository extends JpaRepository<ParkingSession, 
             String status
     );
 
-    // UC-406: TÌM XE ĐANG GỬI THEO BIỂN SỐ
-    Optional<ParkingSession> findFirstByLicensePlateAndStatus(String licensePlate, String status);
+    // UC-406: tìm xe đang gửi theo biển số
+    Optional<ParkingSession> findFirstByLicensePlateAndStatus(
+            String licensePlate,
+            String status
+    );
 }

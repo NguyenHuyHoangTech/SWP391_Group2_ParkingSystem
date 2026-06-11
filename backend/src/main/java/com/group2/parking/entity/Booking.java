@@ -29,12 +29,6 @@ public class Booking {
     @Column(name = "license_plate", nullable = false)
     private String licensePlate;
 
-    @Column(name = "start_time", nullable = false)
-    private LocalDateTime startTime;
-
-    @Column(name = "end_time", nullable = false)
-    private LocalDateTime endTime;
-
     @Column(nullable = false)
     private String status;
 
@@ -46,4 +40,22 @@ public class Booking {
 
     @Column(name = "expired_at")
     private LocalDateTime expiredAt;
+
+    @Column(name = "slot_id")
+    private Integer slotId;
+
+    @Column(name = "monthly_ticket_id")
+    private Integer monthlyTicketId;
+
+    @Column(name = "booking_type", nullable = false)
+    private String bookingType;
+
+    @Column(name = "expected_checkin_time")
+    private LocalDateTime expectedCheckinTime;
+
+    @Column(name = "hold_until")
+    private LocalDateTime holdUntil;
+
+    @Column(name = "checked_in_at")
+    private LocalDateTime checkedInAt;
 }

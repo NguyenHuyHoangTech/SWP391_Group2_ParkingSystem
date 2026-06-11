@@ -82,3 +82,13 @@ CREATE TABLE Payment (
         DEFAULT 'PENDING',
     created_at DATETIME DEFAULT GETDATE()
 );
+
+Thái Tân Phú - 12/6/2026 - Update Database ParkingSystemDatabase-v2
+bỏ: start_time, end_time
+thêm: 
+slot_id
+monthly_ticket_id
+booking_type
+expected_checkin_time => thời điểm khách dự kiến đến bãi xe để check-in
+hold_until => hạn giữ chỗ
+checked_in_at 
