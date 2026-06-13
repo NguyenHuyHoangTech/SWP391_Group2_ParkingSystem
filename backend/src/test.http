@@ -18,3 +18,59 @@ Content-Type: application/json
 ### Task 2: Xem danh sách chính sách giá (GET)
 GET http://localhost:8080/api/pricing-policies
 Content-Type: application/json
+
+### Cập nhật chính sách giá có ID = 1 (Test tính năng Sửa)
+PUT http://localhost:8080/api/pricing-policies/1
+Content-Type: application/json
+
+{
+  "name": "Chính sách giá vé Ngày",
+  "vehicleTypeId": 1,
+  "status": "Active",
+  "blocks": [
+    {
+      "blockOrder": 1,
+      "durationHours": 2,
+      "price": 6000
+    },
+    {
+      "blockOrder": 2,
+      "durationHours": 4,
+      "price": 12000
+    }
+  ]
+}
+
+
+
+### Task 14 & 15: Tính thử tiền đỗ xe dự kiến (Test thuật toán)
+GET http://localhost:8080/api/fees/estimate?licensePlate=29A-12345
+
+### xử li module mất vé và phạt tiền
+POST http://localhost:8080/api/fine-tickets
+Content-Type: application/json
+
+{
+  "sessionId": 1,
+  "reason": "Đỗ xe sai quy định",
+  "fineAmount": 200000
+
+
+}
+
+### Tạo hóa đơn thanh toán
+POST http://localhost:8080/api/invoices
+Content-Type: application/json
+
+{
+  "sessionId": 1,
+  "amount": 15000
+}
+
+### Xác nhận thu tiền thành công (PBMS-18)
+PUT http://localhost:8080/api/invoices/1/pay
+
+
+### Xem lịch sử toàn bộ hóa đơn (PBMS-19)
+GET http://localhost:8080/api/invoices
+

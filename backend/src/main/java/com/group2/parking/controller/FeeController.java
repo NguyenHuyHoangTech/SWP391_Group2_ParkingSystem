@@ -1,6 +1,6 @@
 package com.group2.parking.controller;
 
-import com.group2.parking.dto.FeeEstimateResponse;
+import com.group2.parking.dto.response.FeeEstimateResponse;
 import com.group2.parking.service.FeeCalculationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

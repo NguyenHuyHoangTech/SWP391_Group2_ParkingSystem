@@ -1,6 +1,6 @@
 package com.group2.parking.service;
 
-import com.group2.parking.dto.FeeEstimateResponse;
+import com.group2.parking.dto.response.FeeEstimateResponse;
 import com.group2.parking.entity.ParkingSession;
 import com.group2.parking.entity.PricingBlock;
 import com.group2.parking.entity.PricingPolicy;
@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -53,15 +54,15 @@ public class FeeCalculationService {
             totalHours = 1; // dưới 1 tiếng cũng tính thành là 1 tiếng
         }
         // 3. thuật toán tính tiền(chặt block)
-        double totalFee = 0.0;
+        BigDecimal totalFee = BigDecimal.ZERO;
         long soGioConLai = totalHours;
         List<PricingBlock> blocks = policy.getBlocks();
         // sắp xếp block theo thứ tự 1,2,3
-        blocks.sort((b1,b2) -> b1.getBlockOrder  () - b2.getBlockOrder());
+        blocks.sort((b1,b2) -> b1.getBlockOrder() - b2.getBlockOrder());
         for(int i = 0; i < blocks.size(); i++){
             PricingBlock block = blocks.get(i);
             if(soGioConLai <= 0 ) break;
-            totalFee = totalFee + block.getPrice();
+            totalFee = totalFee.add(block.getPrice());
             soGioConLai = soGioConLai - block.getDurationHours();
         }
 
@@ -74,14 +75,17 @@ public class FeeCalculationService {
             if(gioDu > 0) {
                 soBlockDungThem = soBlockDungThem + 1;
             }
-            totalFee = totalFee + (soBlockDungThem * lastBlock.getPrice());
+           // totalFee = totalFee + (soBlockDungThem * lastBlock.getPrice());
+            BigDecimal extraFee = lastBlock.getPrice().multiply(BigDecimal.valueOf(soBlockDungThem));
+            totalFee = totalFee.add(extraFee);
         }
 
         // 5 Phí phụ qua đêm
         if(checkOutTime.toLocalDate().isAfter(checkInTime.toLocalDate())){
-            totalFee = totalFee + 10000;
+            // totalFee = totalFee + 10000;
+            totalFee = totalFee.add(BigDecimal.valueOf(10000));
         }
         // 6. Trả về biên lai
-        return new FeeEstimateResponse(licensePlate, parkingMinutes, totalFee);
+        return new FeeEstimateResponse(licensePlate, parkingMinutes, totalFee.doubleValue());
     }
 }
